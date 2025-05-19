@@ -16,7 +16,6 @@ const HeroSection = () => {
 
       const scrollPosition = window.scrollY;
       const viewportHeight = window.innerHeight;
-      const sectionTop = sectionRef.current.offsetTop;
 
       const progress = Math.min(Math.max(scrollPosition / (viewportHeight * 0.8), 0), 1);
 
