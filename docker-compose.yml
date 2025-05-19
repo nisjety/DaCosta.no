@@ -1,0 +1,9 @@
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: apps/portefolio/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
