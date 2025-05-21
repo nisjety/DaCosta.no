@@ -13,8 +13,8 @@ RUN npm install
 # Build the app
 RUN npm run build
 
-# Expose port (Next.js defaults to 3000)
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Start the app
-CMD ["npm", "start"]
+CMD ["npx", "next", "start", "-p", "3000", "--hostname", "0.0.0.0"]
+
