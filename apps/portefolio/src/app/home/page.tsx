@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import ProjectsSection from "@/components/home/ProjectsSection";

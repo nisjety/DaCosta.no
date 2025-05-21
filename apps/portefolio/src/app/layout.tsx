@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Inter, Montserrat, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import LoadingProvider from "@/components/core/LoadingProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const montserrat = Montserrat({ 
   subsets: ["latin"], 
   variable: "--font-montserrat",
+  display: "swap",
+});
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
   display: "swap",
 });
 
@@ -21,8 +27,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="no" className="scroll-smooth">
-      <body className={`${inter.variable} ${montserrat.variable} font-sans bg-white`}>
-        {children}
+      <body className={`${inter.variable} ${montserrat.variable} ${spaceGrotesk.variable} font-sans bg-white`}>
+        <LoadingProvider>
+          {children}
+        </LoadingProvider>
       </body>
     </html>
   );

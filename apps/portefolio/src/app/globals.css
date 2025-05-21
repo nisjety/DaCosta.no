@@ -8,26 +8,52 @@
    ================================ */
 
 :root {
-  /* Farger */
-  --foreground-rgb: 0, 0, 0;                /* svart tekst */
-  --background-start-rgb: 255, 255, 255;    /* hvit top */
-  --background-end-rgb: 245, 245, 245;      /* lys grå bunn */
+  /* Farger - New minimalist scheme */
+  --foreground-rgb: 255, 255, 255;             /* dark gray/almost black (#222222) */
+  --background-start-rgb: 235, 234, 234;    /* white (#FFFFFF) */
+  --background-end-rgb: 235, 234, 234;      /* white (#FFFFFF) */
+  
+  /* Brand colors */
+  --color-primary: 255, 255, 255;              /* Dark Gray (#222222) */
+  --color-secondary: 123, 123, 123;         /* Medium Gray (#7b7b7b) */
+  --color-tertiary: 248, 248, 248;          /* Light Gray (#f8f8f8) */
+  
+  /* Section backgrounds */
+  --about-hero-bg: 255, 255, 255;           /* Light gray-green (#eaebea) */
+  --home-hero-bg: 235, 234, 234;            /* White (#ffffff) */
+  --footer-bg: 0, 0, 0;                     /* Black (#000000) */
+  --footer-text: 255, 255, 255;             /* White (#ffffff) */
 
   /* Skrifttyper (fallbacks inkludert) */
-  --font-sans: var(--font-inter, ui-sans-serif, system-ui, -apple-system,
+  --font-sans: 'Outfit', 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system,
       BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      "Noto Sans", sans-serif);
-  --font-heading: var(--font-montserrat, var(--font-sans));
-  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular,
+      "Noto Sans", sans-serif;
+  --font-heading: 'Manrope', var(--font-sans);
+  --font-nav: 'Outfit', var(--font-sans);
+  --font-display: 'Noe Display', serif;
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', var(--font-geist-mono, ui-monospace, SFMono-Regular,
       Menlo, Monaco, "Courier New", monospace);
+      
+  /* Font weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Letter spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
 }
 
 /* -------------- Dark‑mode -------------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 15, 15, 15;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 34, 34, 34;           /* Dark Gray (#222222) */
+    --background-start-rgb: 255, 255, 255;  /* White (#FFFFFF) */
+    --background-end-rgb: 255, 255, 255;    /* White (#FFFFFF) */
   }
 }
 
@@ -52,14 +78,65 @@ body {
   );
   font-family: var(--font-sans);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.nav-text {
+  font-family: var(--font-nav);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* Glass effect for modern UI */
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(34, 34, 34, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Noise texture */
+.noise {
+  position: relative;
+}
+
+.noise::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
 }
 
 /* ===== Utils & animasjoner ===== */
+
+/* About page HeroSection specific background */
+.about-hero-section {
+  background-color: rgb(var(--about-hero-bg)); /* Light gray-green background */
+}
+
+/* Home page HeroSection specific background */
+.home-hero-section {
+  background-color: rgb(var(--home-hero-bg));
+}
 
 .dot-animation {
   transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1);
@@ -72,6 +149,100 @@ h1, h2, h3, h4, h5, h6 {
 
 .clip-circle.active {
   clip-path: circle(100% at center);
+}
+
+/* Scroll indicator pulsing animation */
+@keyframes pulseDown {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(10px); opacity: 1; }
+}
+
+.scroll-indicator {
+  animation: pulseDown 2s ease-in-out infinite;
+}
+
+/* Animated noise texture */
+@keyframes noiseShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(10%, 5%); }
+  50% { transform: translate(-5%, 10%); }
+  75% { transform: translate(-10%, -10%); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes slowMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(4%, 4%); }
+}
+
+/* Subtle shine animation */
+@keyframes shine {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Matrix text effect */
+@keyframes glitchText {
+  0% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 rgba(0, 255, 0, 0.75), 0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
+  14% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 rgba(0, 255, 0, 0.75), 0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
+  15% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 rgba(0, 255, 0, 0.75), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
+  49% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 rgba(0, 255, 0, 0.75), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
+  50% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 rgba(0, 255, 0, 0.75), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
+  99% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 rgba(0, 255, 0, 0.75), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
+  100% { text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75), -0.025em -0.025em 0 rgba(0, 255, 0, 0.75), -0.025em -0.05em 0 rgba(0, 0, 255, 0.75); }
+}
+
+.matrix-text:hover {
+  animation: glitchText 0.5s infinite;
+}
+
+.character-shuffle {
+  display: inline-block;
+  position: relative;
+  transition: all 0.1s;
+}
+
+.character-shuffle::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(34, 34, 34, 0.3);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.character-shuffle:hover::after {
+  transform: scaleX(1);
+}
+
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shine 6s infinite;
 }
 
 /* Fade‑in for tech‑stack ikoner */
@@ -95,3 +266,13 @@ h1, h2, h3, h4, h5, h6 {
 .tech-item:nth-child(8)  { animation-delay: 0.8s; }
 .tech-item:nth-child(9)  { animation-delay: 0.9s; }
 .tech-item:nth-child(10) { animation-delay: 1s; }
+
+/* Font import instructions */
+/* 
+Add to your HTML head or _document.js:
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700&family=Noe+Display:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+*/

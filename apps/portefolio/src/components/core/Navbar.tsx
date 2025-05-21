@@ -8,10 +8,10 @@ import { cn } from "@/lib/utils";
    Data
 ------------------------------------------ */
 const NAV_LINKS = [
-  { href: "#hero", label: "Hjem" },
-  { href: "#about", label: "Om meg" },
+  { href: "/home", label: "Hjem" },
+  { href: "/about", label: "Om meg" },
   { href: "#projects", label: "Prosjekter" },
-  { href: "#contact", label: "Kontakt" },
+  { href: "/contact", label: "Kontakt" },
 ];
 
 const EMAIL = "post@dacosta.no";
@@ -34,17 +34,24 @@ export default function Navbar() {
     <header className="fixed inset-x-0 top-4 z-40 flex justify-center">
       <nav
         className={cn(
-          /* Highlight-strek: 2 px gradient som bruker currentColor → hvit i mørk bakgrunn, svart i lys */
-          "relative after:content-[''] after:absolute after:left-0 after:top-0 after:h-[2px] after:w-full after:bg-gradient-to-r after:from-transparent after:via-current/90 after:to-transparent after:pointer-events-none\n           w-full max-w-5xl px-6 py-3 md:px-10 flex items-center justify-between rounded-full shadow-sm border transition-colors duration-300",
+          /* Base styling med glassmorphism - now darker for light backgrounds */
+          "relative backdrop-blur-md after:content-[''] after:absolute after:left-0 after:top-0 after:h-[1px] after:w-full after:bg-gradient-to-r after:from-transparent after:via-black/30 after:to-transparent after:pointer-events-none",
+          "w-full max-w-5xl px-1 py-1 md:px-11 flex items-center justify-between shadow-lg border border-black/10 transition-all duration-300",
+          "rounded-xl text-white/90",
+          // Conditional styling based on scroll position - darker backgrounds
           scrolled
-            ? "backdrop-blur bg-white/80 border-black/10 text-black"
-            : "bg-black/5 border-white/20 text-white"
+            ? "bg-grey/60 text-black" // When scrolled, use dark background with white text
+            : "bg-grey/50 text-black" // Initially slightly more transparent but still dark
         )}
       >
         {/* Logo */}
-        <Link href="/" className="text-lg md:text-xl font-bold whitespace-nowrap">
+        <Link 
+          href="/" 
+          className="text-lg md:text-xl font-semibold whitespace-nowrap tracking-tight"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           DaCosta
-          <span className={scrolled ? "text-blue-500" : "text-blue-400"}>.</span>
+          <span className="text-[rgb(var(--color-primary-light))]">.</span>
           no
         </Link>
 
@@ -52,31 +59,31 @@ export default function Navbar() {
         <ul className="hidden md:flex gap-10 lg:gap-12">
           {NAV_LINKS.map(({ href, label }) => (
             <li key={href}>
-              <NavLink href={href} label={label} scrolled={scrolled} />
+              <NavLink href={href} label={label} />
             </li>
           ))}
         </ul>
 
         {/* CTA */}
-        <EmailCTA scrolled={scrolled} />
+        <EmailCTA />
 
         {/* Mobilmeny */}
-        <MobileMenu scrolled={scrolled} />
+        <MobileMenu />
       </nav>
     </header>
   );
 }
 
 /* -----------------------------------------
-   Nav-lenke med streker + slide
+   Nav-lenke med streker + slide - adjusted for dark navbar
 ------------------------------------------ */
-function NavLink({ href, label, scrolled }: { href: string; label: string; scrolled: boolean }) {
+function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
       className={cn(
-        "group relative inline-block overflow-hidden text-base font-medium transition-colors duration-300",
-        scrolled ? "text-black hover:text-neutral-600" : "text-white hover:text-blue-300"
+        "nav-text group relative inline-block overflow-hidden text-base font-medium transition-colors duration-300",
+        "tracking-wide text-black hover:text-black/80" // Always white text on dark navbar
       )}
     >
       <span className="before:absolute before:left-0 before:right-0 before:top-0 before:h-px before:bg-current before:origin-left before:scale-x-0 before:transition-transform before:duration-300 group-hover:before:scale-x-100 after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100 relative">
@@ -93,9 +100,9 @@ function NavLink({ href, label, scrolled }: { href: string; label: string; scrol
 }
 
 /* -----------------------------------------
-   CTA: Kopier e‑post (fast bredde)
+   CTA: Kopier e‑post - adjusted for dark navbar
 ------------------------------------------ */
-function EmailCTA({ scrolled }: { scrolled: boolean }) {
+function EmailCTA() {
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -110,7 +117,7 @@ function EmailCTA({ scrolled }: { scrolled: boolean }) {
   const content = copied ? (
     <span className="flex items-center gap-1">
       Kopiert
-      <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-4 h-4 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </span>
@@ -127,8 +134,8 @@ function EmailCTA({ scrolled }: { scrolled: boolean }) {
       onMouseLeave={() => setHovered(false)}
       onClick={copyEmail}
       className={cn(
-        "relative inline-flex items-center justify-center w-44 overflow-hidden rounded-full px-5 py-2.5 text-sm md:text-base font-medium transition-colors duration-300",
-        scrolled ? "bg-black text-white hover:bg-neutral-800" : "bg-white/20 text-white hover:bg-white/30"
+        "nav-text relative inline-flex items-center justify-center w-40 overflow-hidden px-1 py-2 text-sm md:text-base font-medium transition-all duration-300",
+        "tracking-wide bg-white/80 text-black hover:bg-white/50 onclik:bg-black/40 border border-white/10 rounded-md backdrop-blur-sm shadow-lg"
       )}
     >
       {content}
@@ -137,27 +144,30 @@ function EmailCTA({ scrolled }: { scrolled: boolean }) {
 }
 
 /* -----------------------------------------
-   Mobile menu
+   Mobile menu - adjusted for dark theme
 ------------------------------------------ */
-function MobileMenu({ scrolled }: { scrolled: boolean }) {
+function MobileMenu() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setOpen(!open)} aria-label="Åpne meny" className="md:hidden ml-2">
-        <svg className="w-6 h-6" fill="none" stroke={scrolled ? "currentColor" : "#fff"} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <button onClick={() => setOpen(!open)} aria-label="Åpne meny" className="md:hidden ml-2 text-black">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           {open ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
         </svg>
       </button>
 
-      <aside className={cn("fixed inset-0 z-30 flex flex-col items-center justify-center gap-8 bg-black/95 transition-transform duration-300 md:hidden", open ? "translate-x-0" : "translate-x-full")}>        
+      <aside className={cn(
+        "fixed inset-0 z-30 flex flex-col items-center justify-center gap-8 bg-[#ebeaea]/95 backdrop-blur-xl transition-transform duration-300 md:hidden border-t border-white/10",
+        open ? "translate-x-0" : "translate-x-full"
+      )}>        
         {NAV_LINKS.map(({ href, label }) => (
-          <a key={href} href={href} onClick={() => setOpen(false)} className="text-3xl text-white font-semibold hover:text-blue-300">
+          <a key={href} href={href} onClick={() => setOpen(false)} className="nav-text text-3xl text-black font-semibold hover:text-black/80 tracking-wide">
             {label}
           </a>
         ))}
 
-        <button onClick={() => { navigator.clipboard.writeText(EMAIL); setOpen(false); }} className="mt-4 px-8 py-3 border border-white/20 text-white rounded-full hover:bg-white/20">
+        <button onClick={() => { navigator.clipboard.writeText(EMAIL); setOpen(false); }} className="nav-text mt-4 px-8 py-3 border border-white/20 bg-black/30 text-black rounded-md hover:bg-black/50 tracking-wide shadow-md backdrop-blur-sm">
           {EMAIL}
         </button>
       </aside>
