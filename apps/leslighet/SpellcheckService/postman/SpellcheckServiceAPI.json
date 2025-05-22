@@ -1,0 +1,637 @@
+{
+    "info": {
+      "name": "SpellcheckService API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_postman_id": "a45f8b7e-cd32-4e9d-bf4a-9f7e28d5c1df",
+      "description": "API Collection for SpellcheckService - Multilingual spell checking with Norwegian and English support"
+    },
+    "item": [
+      {
+        "name": "Service Information",
+        "item": [
+          {
+            "name": "Health Check",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/health",
+                "host": ["{{baseUrl}}"],
+                "path": ["health"]
+              },
+              "description": "Check if the service is up and running, returns status and dialect settings information"
+            },
+            "response": []
+          },
+          {
+            "name": "Service Info",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/",
+                "host": ["{{baseUrl}}"],
+                "path": [""]
+              },
+              "description": "Get basic information about the service"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Spell Check API",
+        "item": [
+          {
+            "name": "Check Word (Generic)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"misspelledWord\",\n  \"context\": \"Optional sentence context for NLP analysis.\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/spell/check",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "spell", "check"]
+              },
+              "description": "Check the spelling of a word, with optional context"
+            },
+            "response": []
+          },
+          {
+            "name": "Add Word to Dictionary",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"newWord\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/spell/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "spell", "add"]
+              },
+              "description": "Add a new word to the custom dictionary"
+            },
+            "response": []
+          },
+          {
+            "name": "Check Text (Generic)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is an exemple text with some misspelled words.\",\n  \"language\": \"english\",\n  \"dialectSettings\": {\n    \"gb\": true,\n    \"us\": true\n  }\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/check",
+                "host": ["{{baseUrl}}"],
+                "path": ["check"]
+              },
+              "description": "Check text spelling with language detection and custom dialect settings"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Norwegian Spell Check",
+        "item": [
+          {
+            "name": "Check Norwegian Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksampel\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/norwegian/spell",
+                "host": ["{{baseUrl}}"],
+                "path": ["norwegian", "spell"]
+              },
+              "description": "Check the spelling of a Norwegian word"
+            },
+            "response": []
+          },
+          {
+            "name": "Check Norwegian Text",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"Dette er en eksampel tekst med noen skrivefeil.\",\n  \"dialectSettings\": {\n    \"nb\": true,\n    \"nn\": true\n  }\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/norwegian/check-text",
+                "host": ["{{baseUrl}}"],
+                "path": ["norwegian", "check-text"]
+              },
+              "description": "Check the spelling of Norwegian text with custom dialect settings"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "English Spell Check",
+        "item": [
+          {
+            "name": "Check English Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"exemple\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/english/spell",
+                "host": ["{{baseUrl}}"],
+                "path": ["english", "spell"]
+              },
+              "description": "Check the spelling of an English word"
+            },
+            "response": []
+          },
+          {
+            "name": "Check English Text",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is an exemple text with some misspelled words.\",\n  \"dialectSettings\": {\n    \"gb\": true,\n    \"us\": true\n  }\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/english/check-text",
+                "host": ["{{baseUrl}}"],
+                "path": ["english", "check-text"]
+              },
+              "description": "Check the spelling of English text with custom dialect settings"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Word Management",
+        "item": [
+          {
+            "name": "Get Pending Words",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/pending?lang=no",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "pending"],
+                "query": [
+                  {
+                    "key": "lang",
+                    "value": "no"
+                  }
+                ]
+              },
+              "description": "Get list of pending word suggestions by language"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Approved Words",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/approved?lang=no",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "approved"],
+                "query": [
+                  {
+                    "key": "lang",
+                    "value": "no"
+                  }
+                ]
+              },
+              "description": "Get list of approved words by language"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Rejected Words",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/rejected?lang=no",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "rejected"],
+                "query": [
+                  {
+                    "key": "lang",
+                    "value": "no"
+                  }
+                ]
+              },
+              "description": "Get list of rejected words by language"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Custom Dictionary Words",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/custom?lang=no",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "custom"],
+                "query": [
+                  {
+                    "key": "lang",
+                    "value": "no"
+                  }
+                ]
+              },
+              "description": "Get list of custom dictionary words by language"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Word Details",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/eksempel?lang=no",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "eksempel"],
+                "query": [
+                  {
+                    "key": "lang",
+                    "value": "no"
+                  }
+                ]
+              },
+              "description": "Get detailed information about a specific word"
+            },
+            "response": []
+          },
+          {
+            "name": "Approve Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksempel\",\n  \"lang\": \"no\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/approve",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "approve"]
+              },
+              "description": "Approve a pending word suggestion"
+            },
+            "response": []
+          },
+          {
+            "name": "Reject Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksampel\",\n  \"lang\": \"no\",\n  \"reason\": \"Incorrect spelling\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/reject",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "reject"]
+              },
+              "description": "Reject a pending word suggestion with reason"
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksempel\",\n  \"lang\": \"no\",\n  \"type\": \"custom\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/delete",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "delete"]
+              },
+              "description": "Delete a word from dictionary"
+            },
+            "response": []
+          },
+          {
+            "name": "Restore Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksempel\",\n  \"lang\": \"no\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/restore",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "restore"]
+              },
+              "description": "Restore a rejected word to pending status"
+            },
+            "response": []
+          },
+          {
+            "name": "Add Custom Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksempel\",\n  \"lang\": \"no\",\n  \"category\": \"technical\",\n  \"notes\": \"Example term for documentation\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "add"]
+              },
+              "description": "Add a new custom word to dictionary with category and notes"
+            },
+            "response": []
+          },
+          {
+            "name": "Update Word",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"word\": \"eksempel\",\n  \"lang\": \"no\",\n  \"category\": \"general\",\n  \"notes\": \"Updated notes\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/words/update",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "update"]
+              },
+              "description": "Update category and notes for an existing custom word"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Dictionary Statistics",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/api/words/stats",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "words", "stats"]
+              },
+              "description": "Get statistics about the dictionary, including word counts and usage"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "WebSocket API",
+        "item": [
+          {
+            "name": "WebSocket Connection",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "Connect to WebSocket for real-time spell checking"
+            },
+            "response": []
+          },
+          {
+            "name": "Set Language Preference",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to set language preference:\n\n```json\n{\n  \"action\": \"setLanguage\",\n  \"language\": \"english\",\n  \"requestId\": \"123\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Check Text (WebSocket)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to check text spelling:\n\n```json\n{\n  \"action\": \"checkText\",\n  \"text\": \"This is an exemple text with misspelled words.\",\n  \"language\": \"english\",\n  \"dialectSettings\": {\n    \"gb\": true,\n    \"us\": true\n  },\n  \"requestId\": \"124\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Submit Word Feedback",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to submit feedback on a word:\n\n```json\n{\n  \"action\": \"feedback\",\n  \"word\": \"exemple\",\n  \"isCorrect\": true,\n  \"language\": \"english\",\n  \"requestId\": \"125\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Set Dialect Settings",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to set dialect settings:\n\n```json\n{\n  \"action\": \"setDialects\",\n  \"language\": \"norwegian\",\n  \"nb\": true,\n  \"nn\": false,\n  \"requestId\": \"126\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Dialect Settings",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to get current dialect settings:\n\n```json\n{\n  \"action\": \"getDialects\",\n  \"language\": \"norwegian\",\n  \"requestId\": \"127\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Ping/Pong Connection Test",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to test connection:\n\n```json\n{\n  \"action\": \"ping\",\n  \"requestId\": \"128\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Get User Info",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to get user info:\n\n```json\n{\n  \"action\": \"getUserInfo\",\n  \"requestId\": \"129\"\n}\n```"
+            },
+            "response": []
+          },
+          {
+            "name": "Check Single Word (Legacy)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/api/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["api", "ws"]
+              },
+              "description": "WebSocket message format to check a single word (legacy format):\n\n```json\n{\n  \"word\": \"exemple\",\n  \"language\": \"english\",\n  \"dialectSettings\": {\n    \"gb\": true,\n    \"us\": true\n  },\n  \"requestId\": \"130\"\n}\n```"
+            },
+            "response": []
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:5011",
+        "type": "string",
+        "description": "Base URL for SpellcheckService"
+      },
+      {
+        "key": "wsBaseUrl",
+        "value": "ws://localhost:5011",
+        "type": "string",
+        "description": "WebSocket URL for SpellcheckService"
+      }
+    ]
+  }

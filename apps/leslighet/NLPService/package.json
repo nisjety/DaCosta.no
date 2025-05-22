@@ -1,0 +1,11 @@
+{
+  "name": "nlp-service",
+  "version": "1.0.0",
+  "description": "Python-based Natural Language Processing service with FastAPI",
+  "scripts": {
+    "start": "python models/model_api_server.py",
+    "start:docker": "docker-compose up -d",
+    "build": "docker-compose build",
+    "stop": "docker-compose down"
+  }
+}

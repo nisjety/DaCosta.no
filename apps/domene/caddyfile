@@ -1,0 +1,51 @@
+# Use localhost for development
+# Replace with your domain name for production
+:80 {
+    # Reverse proxy for API and web UI
+    reverse_proxy /api/* domain-monitor:3000
+    reverse_proxy domain-monitor:3000
+
+    # WebSocket path for real-time updates
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    
+    # Forward WebSocket connections
+    reverse_proxy @websockets domain-monitor:3001
+
+    # Add CORS headers
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Max-Age "3600"
+    }
+
+    # Log everything
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
+
+# For production, uncomment and set your domain name
+# example.com {
+#     # Auto-HTTPS provided by Caddy
+#     reverse_proxy /api/* domain-monitor:3000
+#     reverse_proxy domain-monitor:3000
+# 
+#     @websockets {
+#         header Connection *Upgrade*
+#         header Upgrade websocket
+#     }
+#     
+#     reverse_proxy @websockets domain-monitor:3001
+# 
+#     header {
+#         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+#     }
+# 
+#     log {
+#         output file /var/log/caddy/access.log
+#     }
+# }

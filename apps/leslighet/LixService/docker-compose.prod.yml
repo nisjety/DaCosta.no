@@ -1,0 +1,235 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: lix_service_prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - PROMETHEUS_METRICS_PORT=8000
+      - PROMETHEUS_METRICS_PATH=/metrics
+      - ENABLE_METRICS=true
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - API_RELOAD=false
+      - API_DEBUG=false
+      - API_WORKERS=4
+      # RabbitMQ configuration
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_EXCHANGE=readability.persistent
+      - RABBITMQ_ROUTING_KEY=lix.analysis
+      - RABBITMQ_QUEUE_NAME=lix_analysis_queue
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lix_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - app_logs:/app/logs
+
+  redis:
+    image: redis:7-alpine
+    container_name: lix_redis_prod
+    restart: unless-stopped
+    ports:
+      - "6381:6379"  # Changed host port to 6381 to avoid port conflict
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - lix_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: lix_prometheus_prod
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    networks:
+      - lix_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lix_grafana_prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - lix_network
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: lix_rabbitmq_prod
+    restart: unless-stopped
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+      - RABBITMQ_DEFAULT_VHOST=/
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - lix_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+        
+  # RabbitMQ exporter for Prometheus
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    container_name: lix_rabbitmq_exporter_prod
+    restart: unless-stopped
+    ports:
+      - "9419:9419"
+    environment:
+      - RABBIT_URL=http://rabbitmq:15672
+      - RABBIT_USER=${RABBITMQ_USER:-guest}
+      - RABBIT_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      - rabbitmq
+    networks:
+      - lix_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+networks:
+  lix_network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  app_logs:
+    driver: local
+  rabbitmq_data:
+    driver: local

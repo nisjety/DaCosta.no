@@ -1,0 +1,96 @@
+# Byte-compiled Python files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Scrapy-specific files
+.scrapy/
+output/  # For scraped data output, if applicable
+logs/
+*.log
+
+# Virtual environment (renamed from "scrapy" to "venv")
+venv/
+ENV/
+env/
+venv.bak/
+
+# Pip environment files
+*.egg-info/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build files
+build/
+dist/
+*.egg
+*.whl
+
+# Unit test / coverage reports
+.coverage
+.tox/
+.nox/
+.cache
+coverage.xml
+nosetests.xml
+*.cover
+.hypothesis/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS-specific files
+.DS_Store
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+
+# Local settings
+local_settings.py
+
+# PyInstaller
+*.spec
+*.manifest
+
+# Jupyter Notebooks (if applicable)
+.ipynb_checkpoints/
+
+# Output files for Scrapy (if you store scraped data)
+*.csv
+*.json
+*.jl
+*.xml
+
+# dev
+.yarn/
+!.yarn/releases
+.vscode/*
+!.vscode/launch.json
+!.vscode/*.code-snippets
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf
+
+# deps
+node_modules/
+
+# env
+.env
+.env.production
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# misc
+.DS_Store

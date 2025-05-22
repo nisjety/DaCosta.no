@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multilingual Spell Checker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="nav-container">
+        <h1>Multilingual Spell Checker</h1>
+        <a href="/admin" class="admin-link">Admin Panel</a>
+      </div>
+      <p class="description">Type or paste text to check spelling in Norwegian or English</p>
+    </header>
+    
+    <div class="control-panel">
+      <div class="language-selector">
+        <label for="languageSelect">Language:</label>
+        <select id="languageSelect">
+          <option value="norwegian">Norwegian</option>
+          <option value="english">English</option>
+        </select>
+      </div>
+      <div class="toggle-container">
+        <label for="autoCorrectToggle">Auto-correct:</label>
+        <input type="checkbox" id="autoCorrectToggle" checked>
+        <span class="toggle-label">On</span>
+      </div>
+      
+      <div class="dialect-container">
+        <!-- Norwegian dialects -->
+        <div id="norwegianDialects" class="dialect-toggles">
+          <span>Norwegian dialects:</span>
+          <label class="toggle">
+            <input type="checkbox" id="nbToggle" data-dialect="nb" data-language="norwegian" checked>
+            <span class="toggle-label">Bokmål</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="nnToggle" data-dialect="nn" data-language="norwegian" checked>
+            <span class="toggle-label">Nynorsk</span>
+          </label>
+        </div>
+        
+        <!-- English dialects -->
+        <div id="englishDialects" class="dialect-toggles" style="display: none;">
+          <span>English dialects:</span>
+          <label class="toggle">
+            <input type="checkbox" id="gbToggle" data-dialect="gb" data-language="english" checked>
+            <span class="toggle-label">British</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="usToggle" data-dialect="us" data-language="english" checked>
+            <span class="toggle-label">American</span>
+          </label>
+        </div>
+      </div>
+      
+      <div id="dialectIndicator" class="dialect-indicator">Using: Norwegian (Bokmål and Nynorsk)</div>
+    </div>
+    
+    <div class="main-content">
+      <div class="text-input-container">
+        <textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+        <div id="loading" class="loading-indicator" style="display: none;">
+          <div class="spinner"></div>
+          <span>Checking spelling...</span>
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button id="checkButton" class="primary-button">Check Spelling</button>
+        <button id="clearButton" class="secondary-button">Clear Text</button>
+      </div>
+      
+      <div id="error-message" class="error-message" style="display: none;"></div>
+      
+      <div id="result" class="result">
+        <!-- Spell check results will appear here -->
+      </div>
+      
+      <div id="statsContainer" class="stats-container" style="display: none;">
+        <h3>Statistics</h3>
+        <div id="statsContent"></div>
+      </div>
+    </div>
+    
+    <div id="tooltip" class="tooltip">
+      <!-- Suggestions will appear here -->
+    </div>
+    
+    <footer>
+      <p>Use Tab key to auto-complete suggestions for misspelled words</p>
+      <p>Press Escape to dismiss suggestions</p>
+    </footer>
+  </div>
+
+  <script src="spellchecker.js"></script>
+</body>
+</html>

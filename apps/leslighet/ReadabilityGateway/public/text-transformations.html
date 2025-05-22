@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Transformations - Readability Service</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2a5885;
+    }
+    nav a {
+      margin-left: 15px;
+      color: #2a5885;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      color: #2a5885;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .input-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+    .output-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #2a5885;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #1c3f5f;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .options-container {
+      padding: 15px;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .options-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .option-group {
+      margin-bottom: 10px;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      border-bottom: 2px solid #2a5885;
+      color: #2a5885;
+      font-weight: bold;
+    }
+    .tab:hover {
+      background-color: #f5f5f5;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    .loading {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2a5885;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error {
+      color: #d32f2f;
+      background-color: #ffebee;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+    .success {
+      color: #388e3c;
+      background-color: #e8f5e9;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+    .highlight {
+      background-color: #fff3cd;
+      padding: 2px 0;
+    }
+    .metric {
+      display: inline-block;
+      padding: 4px 8px;
+      background-color: #e3f2fd;
+      border-radius: 4px;
+      margin-right: 5px;
+      font-size: 14px;
+    }
+    .comparison {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .comparison-column {
+      flex: 1;
+    }
+    .comparison-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #2a5885;
+    }
+    .api-info {
+      background-color: #f8f9fa;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 30px;
+    }
+    code {
+      background-color: #eee;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Readability Services</div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/client-example.html">Basic Example</a>
+      <a href="/realtime-demo.html">Realtime Analysis</a>
+      <a href="/text-transformations.html">Text Transformations</a>
+    </nav>
+  </header>
+
+  <h1>Advanced Text Transformation</h1>
+  <p>Transform your text using AI-powered capabilities to improve readability, style, and structure.</p>
+  
+  <div class="tabs">
+    <div class="tab active" data-tab="readability">Readability</div>
+    <div class="tab" data-tab="feedback">Feedback</div>
+    <div class="tab" data-tab="style">Style & Tone</div>
+    <div class="tab" data-tab="structure">Structure</div>
+    <div class="tab" data-tab="intent">Intent Analysis</div>
+    <div class="tab" data-tab="educational">Educational</div>
+    <div class="tab" data-tab="translate">Translate</div>
+  </div>
+  
+  <div class="container">
+    <div class="panel input-panel">
+      <h2>Input Text</h2>
+      <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+      
+      <div class="tab-content active" id="readability-options">
+        <div class="options-container">
+          <div class="options-title">Readability Options</div>
+          <div class="option-group">
+            <label for="currentLix">Current LIX Score:</label>
+            <input type="number" id="currentLix" min="20" max="60" value="45">
+          </div>
+          <div class="option-group">
+            <label for="targetLix">Target LIX Score:</label>
+            <input type="number" id="targetLix" min="20" max="60" value="30">
+          </div>
+          <div class="option-group">
+            <label for="tone">Tone:</label>
+            <select id="tone">
+              <option value="neutral">Neutral</option>
+              <option value="formal">Formal</option>
+              <option value="friendly">Friendly</option>
+              <option value="persuasive">Persuasive</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="purpose">Purpose:</label>
+            <select id="purpose">
+              <option value="general">General Improvement</option>
+              <option value="simplify">Simplify</option>
+              <option value="expand">Expand</option>
+              <option value="summarize">Summarize</option>
+            </select>
+          </div>
+        </div>
+        <button id="applyReadability">Transform Readability</button>
+      </div>
+      
+      <div class="tab-content" id="feedback-options">
+        <div class="options-container">
+          <div class="options-title">Feedback Options</div>
+          <div class="option-group">
+            <label for="focusArea">Focus Area:</label>
+            <select id="focusArea">
+              <option value="all">Comprehensive Feedback</option>
+              <option value="grammar">Grammar</option>
+              <option value="readability">Readability</option>
+              <option value="style">Style</option>
+            </select>
+          </div>
+        </div>
+        <button id="applyFeedback">Get Intelligent Feedback</button>
+      </div>
+      
+      <div class="tab-content" id="style-options">
+        <div class="options-container">
+          <div class="options-title">Style & Tone Options</div>
+          <div class="option-group">
+            <label for="targetStyle">Target Style:</label>
+            <select id="targetStyle">
+              <option value="">Analyze Only</option>
+              <option value="corporate">Corporate</option>
+              <option value="academic">Academic</option>
+              <option value="legal">Legal</option>
+              <option value="emotional">Emotional/Engaging</option>
+              <option value="conversational">Conversational</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="targetTone">Target Tone:</label>
+            <input type="text" id="targetTone" placeholder="e.g. confident, authoritative, warm">
+          </div>
+          <div class="option-group">
+            <label>
+              <input type="checkbox" id="fixMismatch" checked> Fix tone mismatches
+            </label>
+          </div>
+        </div>
+        <button id="applyStyle">Analyze & Transform Style</button>
+      </div>
+      
+      <div class="tab-content" id="structure-options">
+        <div class="options-container">
+          <div class="options-title">Structure Options</div>
+          <div class="option-group">
+            <label for="restructureType">Restructure Type:</label>
+            <select id="restructureType">
+              <option value="paragraphs">Break into Paragraphs</option>
+              <option value="headings">Add Headings</option>
+              <option value="bullets">Convert to Bullet Points</option>
+              <option value="reverse-bullets">Convert Bullets to Paragraphs</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="maxSectionLength">Max Section Length (words):</label>
+            <input type="number" id="maxSectionLength" min="50" max="500" value="100">
+          </div>
+          <div class="option-group">
+            <label>
+              <input type="checkbox" id="addIntroConclusion"> Add intro and conclusion
+            </label>
+          </div>
+        </div>
+        <button id="applyStructure">Restructure Text</button>
+      </div>
+      
+      <div class="tab-content" id="intent-options">
+        <div class="options-container">
+          <div class="options-title">Intent Analysis Options</div>
+          <div class="option-group">
+            <p>This will analyze the semantic intent of your text, including:</p>
+            <ul>
+              <li>Primary intent (complaint, suggestion, question, etc.)</li>
+              <li>Document type (email, article, academic paper, etc.)</li>
+              <li>Emotional tone</li>
+              <li>Key topics</li>
+              <li>Target audience</li>
+            </ul>
+          </div>
+        </div>
+        <button id="applyIntent">Analyze Intent</button>
+      </div>
+      
+      <div class="tab-content" id="educational-options">
+        <div class="options-container">
+          <div class="options-title">Educational Content Options</div>
+          <div class="option-group">
+            <label for="educationType">Education Type:</label>
+            <select id="educationType">
+              <option value="explain">Explain Issues & Solutions</option>
+              <option value="challenge">Create Learning Challenge</option>
+              <option value="compare">Compare Versions</option>
+            </select>
+          </div>
+        </div>
+        <button id="applyEducational">Generate Educational Content</button>
+      </div>
+      
+      <div class="tab-content" id="translate-options">
+        <div class="options-container">
+          <div class="options-title">Translation Options</div>
+          <div class="option-group">
+            <label for="sourceLanguage">Source Language:</label>
+            <input type="text" id="sourceLanguage" value="English">
+          </div>
+          <div class="option-group">
+            <label for="targetLanguage">Target Language:</label>
+            <input type="text" id="targetLanguage" value="Norwegian">
+          </div>
+          <div class="option-group">
+            <label for="translationLix">Target LIX Score:</label>
+            <input type="number" id="translationLix" min="20" max="60" value="35">
+          </div>
+        </div>
+        <button id="applyTranslate">Translate Text</button>
+      </div>
+    </div>
+    
+    <div class="panel output-panel">
+      <h2>Output</h2>
+      
+      <div class="error" id="errorMessage"></div>
+      <div class="success" id="successMessage"></div>
+      
+      <div class="loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <p>Processing your request...</p>
+      </div>
+      
+      <div id="outputContainer">
+        <div class="tab-content active" id="readability-output">
+          <h3>Transformed Text</h3>
+          <pre id="readabilityResult"></pre>
+          <div id="readabilityMetrics"></div>
+        </div>
+        
+        <div class="tab-content" id="feedback-output">
+          <h3>Feedback</h3>
+          <div id="feedbackSummary"></div>
+          <div id="feedbackStrengths"></div>
+          <div id="feedbackImprovements"></div>
+        </div>
+        
+        <div class="tab-content" id="style-output">
+          <h3>Style Analysis</h3>
+          <div id="styleAnalysis"></div>
+          <h4>Transformed Text</h4>
+          <pre id="styleResult"></pre>
+        </div>
+        
+        <div class="tab-content" id="structure-output">
+          <h3>Restructured Text</h3>
+          <pre id="structureResult"></pre>
+          <div id="structureChanges"></div>
+        </div>
+        
+        <div class="tab-content" id="intent-output">
+          <h3>Intent Analysis</h3>
+          <div id="intentResult"></div>
+        </div>
+        
+        <div class="tab-content" id="educational-output">
+          <h3>Educational Content</h3>
+          <div id="educationalContent"></div>
+        </div>
+        
+        <div class="tab-content" id="translate-output">
+          <h3>Translation Result</h3>
+          <pre id="translateResult"></pre>
+          <div id="translationNotes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="api-info">
+    <h2>API Information</h2>
+    <p>All text transformations are available through REST API endpoints:</p>
+    <ul>
+      <li><code>POST /api/transform/readability</code> - Transform text to a target LIX score</li>
+      <li><code>POST /api/transform/feedback</code> - Get intelligent feedback on text</li>
+      <li><code>POST /api/transform/style</code> - Analyze and improve text style</li>
+      <li><code>POST /api/transform/restructure</code> - Restructure text formatting</li>
+      <li><code>POST /api/transform/intent</code> - Analyze text intent</li>
+      <li><code>POST /api/transform/educational</code> - Generate educational content</li>
+      <li><code>POST /api/transform/translate</code> - Translate with readability controls</li>
+    </ul>
+    <p>For API documentation and examples, see the <a href="https://github.com/yourusername/readability-service" target="_blank">GitHub repository</a>.</p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tab handling
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      const outputContents = document.querySelectorAll('.output-panel .tab-content');
+      
+      // Switch tabs function
+      const switchTab = (tabName) => {
+        // Hide all option tabs and output tabs
+        tabContents.forEach(content => content.classList.remove('active'));
+        outputContents.forEach(content => content.classList.remove('active'));
+        
+        // Show selected tab and output
+        document.getElementById(`${tabName}-options`).classList.add('active');
+        document.getElementById(`${tabName}-output`).classList.add('active');
+        
+        // Update active tab indicator
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+      };
+      
+      // Add click handlers to tabs
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.dataset.tab;
+          switchTab(tabName);
+        });
+      });
+      
+      // Helper functions
+      const showLoading = () => {
+        document.getElementById('loadingIndicator').style.display = 'block';
+      };
+      
+      const hideLoading = () => {
+        document.getElementById('loadingIndicator').style.display = 'none';
+      };
+      
+      const showError = (message) => {
+        const errorElement = document.getElementById('errorMessage');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        setTimeout(() => {
+          errorElement.style.display = 'none';
+        }, 5000);
+      };
+      
+      const showSuccess = (message) => {
+        const successElement = document.getElementById('successMessage');
+        successElement.textContent = message;
+        successElement.style.display = 'block';
+        setTimeout(() => {
+          successElement.style.display = 'none';
+        }, 5000);
+      };
+
+      // API request function
+      const callTransformAPI = async (endpoint, data) => {
+        showLoading();
+        
+        try {
+          const response = await fetch(`/api/transform/${endpoint}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'An error occurred');
+          }
+          
+          return await response.json();
+        } catch (error) {
+          showError(`Error: ${error.message}`);
+          throw error;
+        } finally {
+          hideLoading();
+        }
+      };
+      
+      // Event handlers for each transformation button
+      
+      // 1. Readability transformation
+      document.getElementById('applyReadability').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to transform');
+          return;
+        }
+        
+        const currentLix = parseInt(document.getElementById('currentLix').value);
+        const targetLix = parseInt(document.getElementById('targetLix').value);
+        const tone = document.getElementById('tone').value;
+        const purpose = document.getElementById('purpose').value;
+        
+        try {
+          const result = await callTransformAPI('readability', {
+            text,
+            currentLix,
+            targetLix,
+            tone,
+            purpose
+          });
+          
+          document.getElementById('readabilityResult').textContent = result.result;
+          
+          // Display metrics
+          const metricsElement = document.getElementById('readabilityMetrics');
+          metricsElement.innerHTML = `
+            <p>
+              <span class="metric">Original LIX: ${result.metrics?.originalLix || currentLix}</span>
+              <span class="metric">New LIX: ${result.metrics?.newLix || 'Unknown'}</span>
+              <span class="metric">Target LIX: ${targetLix}</span>
+              <span class="metric">Tone: ${tone}</span>
+            </p>
+          `;
+          
+          showSuccess('Text transformation complete!');
+        } catch (error) {
+          console.error('Readability transformation error:', error);
+        }
+      });
+      
+      // 2. Intelligent Feedback
+      document.getElementById('applyFeedback').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to analyze');
+          return;
+        }
+        
+        const focusArea = document.getElementById('focusArea').value;
+        
+        try {
+          const result = await callTransformAPI('feedback', {
+            text,
+            focusArea
+          });
+          
+          const feedback = result.feedback || {};
+          
+          // Display summary
+          document.getElementById('feedbackSummary').innerHTML = `
+            <div class="options-container">
+              <h4>Summary</h4>
+              <p>${feedback.summary || 'No summary provided'}</p>
+            </div>
+          `;
+          
+          // Display strengths
+          if (feedback.strengths && feedback.strengths.length > 0) {
+            document.getElementById('feedbackStrengths').innerHTML = `
+              <div class="options-container">
+                <h4>Strengths</h4>
+                <ul>
+                  ${feedback.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                </ul>
+              </div>
+            `;
+          } else {
+            document.getElementById('feedbackStrengths').innerHTML = '';
+          }
+          
+          // Display improvements
+          if (feedback.improvements && feedback.improvements.length > 0) {
+            document.getElementById('feedbackImprovements').innerHTML = `
+              <div class="options-container">
+                <h4>Suggested Improvements</h4>
+                ${feedback.improvements.map(improvement => `
+                  <div class="option-group">
+                    <p><strong>${improvement.category || 'Issue'}:</strong> ${improvement.issue}</p>
+                    ${improvement.suggestion ? `<p><em>Suggestion:</em> ${improvement.suggestion}</p>` : ''}
+                    ${improvement.example ? `
+                      <div class="comparison">
+                        <div class="comparison-column">
+                          <div class="comparison-title">Example:</div>
+                          <p class="highlight">${improvement.example}</p>
+                        </div>
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else {
+            document.getElementById('feedbackImprovements').innerHTML = '';
+          }
+          
+          showSuccess('Feedback generated successfully!');
+        } catch (error) {
+          console.error('Feedback error:', error);
+        }
+      });
+      
+      // 3. Style & Tone Analysis
+      document.getElementById('applyStyle').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to analyze');
+          return;
+        }
+        
+        const targetStyle = document.getElementById('targetStyle').value;
+        const targetTone = document.getElementById('targetTone').value;
+        const fixMismatch = document.getElementById('fixMismatch').checked;
+        
+        try {
+          const result = await callTransformAPI('style', {
+            text,
+            targetStyle,
+            targetTone,
+            fixMismatch
+          });
+          
+          const analysis = result.analysis || {};
+          
+          // Display analysis
+          document.getElementById('styleAnalysis').innerHTML = `
+            <div class="options-container">
+              <div class="option-group">
+                <p><strong>Current Style:</strong> ${analysis.currentStyle || 'Not determined'}</p>
+                <p><strong>Current Tone:</strong> ${analysis.currentTone || 'Not determined'}</p>
+                <p><strong>Consistency Score:</strong> ${analysis.consistencyScore ? analysis.consistencyScore.toFixed(2) : 'N/A'}</p>
+              </div>
+              
+              ${analysis.mismatches && analysis.mismatches.length > 0 ? `
+                <div class="option-group">
+                  <h4>Tone Mismatches</h4>
+                  ${analysis.mismatches.map(mismatch => `
+                    <p><strong>Section:</strong> <span class="highlight">${mismatch.section}</span></p>
+                    <p><strong>Issue:</strong> ${mismatch.issue}</p>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+          
+          // Display transformed text
+          if (result.result || analysis.correctedText) {
+            document.getElementById('styleResult').textContent = result.result || analysis.correctedText;
+          }
+          
+          showSuccess('Style analysis complete!');
+        } catch (error) {
+          console.error('Style analysis error:', error);
+        }
+      });
+      
+      // 4. Restructure Text
+      document.getElementById('applyStructure').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to restructure');
+          return;
+        }
+        
+        const restructureType = document.getElementById('restructureType').value;
+        const maxSectionLength = parseInt(document.getElementById('maxSectionLength').value);
+        const addIntroConclusion = document.getElementById('addIntroConclusion').checked;
+        
+        try {
+          const result = await callTransformAPI('restructure', {
+            text,
+            restructureType,
+            options: {
+              maxSectionLength,
+              addIntroConclusion
+            }
+          });
+          
+          // Display restructured text
+          document.getElementById('structureResult').textContent = result.result?.restructuredText || result.result;
+          
+          // Display changes
+          const changes = result.result?.changes || result.changes;
+          if (changes && changes.length > 0) {
+            document.getElementById('structureChanges').innerHTML = `
+              <div class="options-container">
+                <h4>Changes Made</h4>
+                <ul>
+                  ${changes.map(change => `
+                    <li><strong>${change.type || 'Change'}:</strong> ${change.description}${change.reason ? ` - ${change.reason}` : ''}</li>
+                  `).join('')}
+                </ul>
+              </div>
+            `;
+          } else {
+            document.getElementById('structureChanges').innerHTML = '';
+          }
+          
+          showSuccess('Text restructured successfully!');
+        } catch (error) {
+          console.error('Restructuring error:', error);
+        }
+      });
+      
+      // 5. Intent Analysis
+      document.getElementById('applyIntent').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to analyze');
+          return;
+        }
+        
+        try {
+          const result = await callTransformAPI('intent', {
+            text
+          });
+          
+          const analysis = result.analysis || result.result || {};
+          
+          // Display intent analysis
+          document.getElementById('intentResult').innerHTML = `
+            <div class="options-container">
+              <div class="option-group">
+                <p><strong>Primary Intent:</strong> ${analysis.intent || 'Unknown'}</p>
+                <p><strong>Document Type:</strong> ${analysis.documentType || 'Unknown'}</p>
+                <p><strong>Emotional Tone:</strong> ${analysis.emotionalTone || 'Neutral'}</p>
+                <p><strong>Confidence:</strong> ${analysis.confidence ? `${(analysis.confidence * 100).toFixed(0)}%` : 'Unknown'}</p>
+              </div>
+              
+              ${analysis.topics && analysis.topics.length > 0 ? `
+                <div class="option-group">
+                  <h4>Key Topics</h4>
+                  <ul>
+                    ${analysis.topics.map(topic => `<li>${topic}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+              
+              ${analysis.targetAudience ? `
+                <div class="option-group">
+                  <p><strong>Target Audience:</strong> ${analysis.targetAudience}</p>
+                </div>
+              ` : ''}
+              
+              ${analysis.explanation ? `
+                <div class="option-group">
+                  <h4>Explanation</h4>
+                  <p>${analysis.explanation}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          
+          showSuccess('Intent analysis complete!');
+        } catch (error) {
+          console.error('Intent analysis error:', error);
+        }
+      });
+      
+      // 6. Educational Content
+      document.getElementById('applyEducational').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text for educational content');
+          return;
+        }
+        
+        const educationType = document.getElementById('educationType').value;
+        
+        try {
+          const result = await callTransformAPI('educational', {
+            text,
+            educationType
+          });
+          
+          const content = result.content || result.result || {};
+          
+          if (typeof content === 'string') {
+            // Handle plain text content
+            document.getElementById('educationalContent').innerHTML = `
+              <div class="options-container">
+                <p>${content}</p>
+              </div>
+            `;
+          } else {
+            // Handle structured content
+            document.getElementById('educationalContent').innerHTML = `
+              <div class="options-container">
+                <h3>${content.lessonTitle || 'Writing Lesson'}</h3>
+                
+                ${content.keyIssues && content.keyIssues.length > 0 ? `
+                  <div class="option-group">
+                    <h4>Key Issues</h4>
+                    ${content.keyIssues.map(issue => `
+                      <div class="options-container">
+                        <h5>${issue.issue}</h5>
+                        <p><strong>Explanation:</strong> ${issue.explanation}</p>
+                        <p><strong>Principle:</strong> ${issue.principle || ''}</p>
+                        
+                        ${issue.example ? `
+                          <div class="comparison">
+                            <div class="comparison-column">
+                              <div class="comparison-title">Before:</div>
+                              <p class="highlight">${issue.example.before || issue.example}</p>
+                            </div>
+                            ${issue.example.after ? `
+                              <div class="comparison-column">
+                                <div class="comparison-title">After:</div>
+                                <p>${issue.example.after}</p>
+                              </div>
+                            ` : ''}
+                          </div>
+                        ` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                
+                ${content.practice ? `
+                  <div class="option-group">
+                    <h4>Practice Exercise</h4>
+                    <p>${content.practice}</p>
+                  </div>
+                ` : ''}
+                
+                ${content.resources && content.resources.length > 0 ? `
+                  <div class="option-group">
+                    <h4>Additional Resources</h4>
+                    <ul>
+                      ${content.resources.map(resource => `<li>${resource}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }
+          
+          showSuccess('Educational content generated!');
+        } catch (error) {
+          console.error('Educational content error:', error);
+        }
+      });
+      
+      // 7. Translation
+      document.getElementById('applyTranslate').addEventListener('click', async () => {
+        const text = document.getElementById('inputText').value.trim();
+        if (!text) {
+          showError('Please enter some text to translate');
+          return;
+        }
+        
+        const sourceLanguage = document.getElementById('sourceLanguage').value;
+        const targetLanguage = document.getElementById('targetLanguage').value;
+        const targetLix = parseInt(document.getElementById('translationLix').value);
+        
+        try {
+          const result = await callTransformAPI('translate', {
+            text,
+            sourceLanguage,
+            targetLanguage,
+            targetLix
+          });
+          
+          // Handle different response formats
+          const translationResult = result.result || result;
+          
+          // Display translated text
+          document.getElementById('translateResult').textContent = 
+            translationResult.translatedText || translationResult.translation || translationResult;
+          
+          // Display translation notes
+          const notes = translationResult.notes || [];
+          if (notes.length > 0) {
+            document.getElementById('translationNotes').innerHTML = `
+              <div class="options-container">
+                <h4>Translation Notes</h4>
+                ${notes.map(note => `
+                  <div class="option-group">
+                    <p><strong>Original:</strong> <span class="highlight">${note.original}</span></p>
+                    <p><strong>Translation:</strong> ${note.translation}</p>
+                    ${note.note ? `<p><em>Note:</em> ${note.note}</p>` : ''}
+                  </div>
+                `).join('')}
+                
+                ${translationResult.estimatedLix ? `
+                  <p><strong>Estimated LIX of translation:</strong> ${translationResult.estimatedLix}</p>
+                ` : ''}
+                
+                ${translationResult.culturalAdaptations && translationResult.culturalAdaptations.length > 0 ? `
+                  <div class="option-group">
+                    <h5>Cultural Adaptations</h5>
+                    <ul>
+                      ${translationResult.culturalAdaptations.map(adaptation => `<li>${adaptation}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          } else {
+            document.getElementById('translationNotes').innerHTML = '';
+          }
+          
+          showSuccess('Translation complete!');
+        } catch (error) {
+          console.error('Translation error:', error);
+        }
+      });
+      
+      // Initialize with some sample text
+      document.getElementById('inputText').value = 
+        "The utilization of natural language processing methodologies for enhancing textual readability metrics represents a significant advancement in computational linguistics. These technologies facilitate the automated analysis and transformation of complex documentation to achieve specific readability targets, thereby increasing accessibility across diverse demographic segments with varying literacy proficiencies.";
+    });
+  </script>
+</body>
+</html>

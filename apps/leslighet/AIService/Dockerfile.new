@@ -1,0 +1,35 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy model requirements first for better caching
+COPY models/requirements.txt ./requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir fastapi uvicorn websockets pydantic
+
+# Create cache directory for model files
+RUN mkdir -p /app/cache && chmod 777 /app/cache
+
+# Copy model files
+COPY models/ ./
+
+# Expose the port for the API
+EXPOSE 5014
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV TRANSFORMERS_CACHE=/app/cache
+ENV MODEL_PARALLEL_WORKERS=2
+ENV PYTORCH_MPS_ENABLE_IF_AVAILABLE=1
+
+# Run the model API server with uvicorn
+CMD ["uvicorn", "model_api_server:app", "--host", "0.0.0.0", "--port", "5014", "--workers", "1"]

@@ -7,3 +7,60 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_DOMAIN_API_URL=/api/domain-monitor
+      - NEXT_PUBLIC_DOMAIN_WS_URL=ws://localhost:3001 
+      - DOMENE_INTERNAL_API_URL=http://domene:3001
+    depends_on:
+      - domene
+    networks:
+      - dacosta_network
+
+  domene:
+    build:
+      context: ./apps/domene
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"  # Map API to 3001 on host to avoid conflict with portfolio
+      - "3002:3002"  # Map WebSocket port to 3002 on host
+    env_file:
+      - ./apps/domene/.env
+    environment:
+      # Override specific values from .env if needed
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:password@mongo:27017/domain_monitor?authSource=admin
+      - REDIS_HOST=redis
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - domene_data:/usr/src/app/data
+    networks:
+      - dacosta_network
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=domain_monitor
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - dacosta_network
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - dacosta_network
+
+networks:
+  dacosta_network:
+
+volumes:
+  domene_data:
+  mongodb_data:
+  redis_data:

@@ -1,0 +1,261 @@
+[
+  {
+    "category": "possessives",
+    "purpose": "Mark ownership or belonging",
+    "words": [
+      "min", "mi", "mitt", "mine",
+      "din", "di", "ditt", "dine",
+      "sin", "si", "sitt", "sine",
+      "hans", "hennes", "dens", "dets",
+      "vår", "vårt", "våre",
+      "deres"
+    ]
+  },
+  {
+    "category": "definiteEndings",
+    "purpose": "Mark the definite form of nouns (often used as suffixes)",
+    "words": [
+      "en",
+      "et",
+      "a",
+      "ene",
+      "ne",
+      "ane"
+    ]
+  },
+  {
+    "category": "indefiniteArticles",
+    "purpose": "Used before nouns in indefinite form",
+    "words": [
+      "en",
+      "ei",
+      "et"
+    ]
+  },
+  {
+    "category": "definiteArticles",
+    "purpose": "Used before adjectives in definite form (part of double definiteness)",
+    "words": [
+      "den",
+      "det",
+      "de",
+      "denne",
+      "dette",
+      "disse"
+    ]
+  },
+  {
+    "category": "passiveMarkers",
+    "purpose": "Used for passive constructions with 'bli'",
+    "words": [
+      "bli",
+      "blir",
+      "ble",
+      "blitt"
+    ]
+  },
+  {
+    "category": "auxiliaries",
+    "purpose": "Helper verbs (modals + forms of 'være'/'ha')",
+    "words": [
+      "være", "er", "var", "vært",
+      "ha", "har", "hadde", "hatt",
+      "skal", "skulle",
+      "vil", "ville",
+      "kan", "kunne",
+      "må", "måtte",
+      "bør", "burde",
+      "får", "fikk", "fått"
+    ]
+  },
+  {
+    "category": "prepositionsWithDefinite",
+    "purpose": "Prepositions that usually take definite form nouns",
+    "words": [
+      "i",
+      "på",
+      "med",
+      "til",
+      "fra",
+      "av",
+      "om",
+      "for",
+      "under",
+      "over",
+      "ved",
+      "gjennom",
+      "hos",
+      "mot",
+      "etter",
+      "mellom",
+      "blant",
+      "før",
+      "uten",
+      "bak",
+      "foran",
+      "innen",
+      "rundt"
+    ]
+  },
+  {
+    "category": "prepositionsWithIndefinite",
+    "purpose": "Prepositions that often take indefinite form nouns",
+    "words": [
+      "som",
+      "per",
+      "via"
+    ]
+  },
+  {
+    "category": "measureWords",
+    "purpose": "Words indicating amount or quantity (usually followed by indefinite form)",
+    "words": [
+      "mange",
+      "få",
+      "noen",
+      "flere",
+      "mye",
+      "lite",
+      "litt",
+      "nok",
+      "masse",
+      "en del",
+      "to",
+      "tre",
+      "fire",
+      "fem",
+      "seks",
+      "syv",
+      "åtte",
+      "ni",
+      "ti",
+      "elleve",
+      "tolv"
+    ]
+  },
+  {
+    "category": "conjunctions",
+    "purpose": "Words that connect phrases or clauses",
+    "words": [
+      "og",
+      "eller",
+      "men",
+      "for",
+      "så",
+      "at",
+      "da",
+      "når",
+      "dersom",
+      "hvis",
+      "fordi",
+      "siden",
+      "som",
+      "både",
+      "enten",
+      "hverken",
+      "verken",
+      "samt"
+    ]
+  },
+  {
+    "category": "relativePronoun",
+    "purpose": "Connects relative clauses",
+    "words": [
+      "som",
+      "hvilken",
+      "hvilket",
+      "hvilke",
+      "der",
+      "hvor"
+    ]
+  },
+  {
+    "category": "masculineNouns",
+    "purpose": "Common masculine nouns for gender checking",
+    "words": [
+      "bil",
+      "stol",
+      "dag",
+      "gutt",
+      "mann",
+      "telefon",
+      "båt",
+      "hund",
+      "lærer",
+      "vinter",
+      "sommer",
+      "vei",
+      "gang",
+      "kaffe",
+      "venn",
+      "time",
+      "katt"
+    ]
+  },
+  {
+    "category": "feminineNouns",
+    "purpose": "Common feminine nouns for gender checking",
+    "words": [
+      "bok",
+      "klokke",
+      "dør",
+      "sol",
+      "jente",
+      "dame",
+      "uke",
+      "gate",
+      "hånd",
+      "natt",
+      "hytte",
+      "kone",
+      "strand",
+      "avis",
+      "flaske",
+      "melk",
+      "tid"
+    ]
+  },
+  {
+    "category": "neuterNouns",
+    "purpose": "Common neuter nouns for gender checking",
+    "words": [
+      "hus",
+      "bord",
+      "tre",
+      "barn",
+      "år",
+      "bilde",
+      "vann",
+      "rom",
+      "land",
+      "sted",
+      "ark",
+      "vindu",
+      "brev",
+      "liv",
+      "ord",
+      "skip",
+      "glass",
+      "eple"
+    ]
+  },
+  {
+    "category": "otherStopWords",
+    "purpose": "All other high-frequency words from the original stop-list (Bokmål + some variations)",
+    "words": [
+      "alle","andre","arbeid","at","av","bare","begge","blei","bort","bra","bruke","både","båe","da","de",
+      "deg","dei","deim","deira","deires","dem","den","denne","der","dere","det","dette","disse","du","dykk",
+      "dykkar","då","eg","ein","eit","eitt","eller","elles","ene","eneste","enhver","enn","etter","folk","for",
+      "fordi","forsøke","fra","få","før","først","gjorde","gjøre","god","gå","hadde",
+      "han","har","hennar","her","hjå","ho","hoe","honom","hoss","hossen","hun","hva","hvem","hver","hvilke",
+      "hvilken","hvis","hvor","hvordan","hvorfor","i","ikke","ikkje","ingen","ingi","inkje","inn","innen","inni",
+      "ja","jeg","kan","kom","korleis","korso","kun","kva","kvar","kvarhelst","kven","kvi","kvifor","lage","lang",
+      "lik","like","makt","man","mange","me","med","medan","meg","meget","mellom","men","mens","mer","mest","mot",
+      "mye","mykje","måte","navn","ned","nei","no","noe","noen","noka","noko","nokon","nokor","nokre","ny","nå",
+      "når","og","også","om","opp","oss","over","part","punkt","på","rett","riktig","samme","sant","seg","selv",
+      "si","sia","sidan","siden","sist","sjøl","skal","skulle","slik","slutt","so","som","somme","somt","start",
+      "stille","så","sånn","tid","til","tilbake","tilstand","um","under","upp","ut","uten","var","vart","varte",
+      "ved","verdi","vere","verte","vi","vil","vite","vore","vors","vort","vöre","vört","å"
+    ]
+  }
+]

@@ -1,0 +1,78 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: spellchecker_redis
+    command: ["redis-server", "--port", "6379", "--appendonly", "yes"]
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - spellchecker_network
+
+  load-dictionary:
+    build:
+      context: .
+      dockerfile: Dockerfile.load-dictionary
+    container_name: spellchecker_loader
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - NODE_ENV=${NODE_ENV:-production}
+    volumes:
+      - ./data/DICT:/app/data/DICT:ro
+    networks:
+      - spellchecker_network
+    restart: on-failure:3
+
+  frontend:
+    image: halverneus/static-file-server:latest
+    container_name: spellchecker_frontend
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./src/public:/web
+    environment:
+      - FOLDER=/web
+    networks:
+      - spellchecker_network
+    restart: unless-stopped
+
+  spellchecker:
+    build: .
+    container_name: spellchecker_service
+    ports:
+      - "5002:5002"  # Expose directly to host
+    depends_on:
+      redis:
+        condition: service_healthy
+      load-dictionary:
+        condition: service_completed_successfully
+    environment:
+      - APP_HOST=0.0.0.0
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${APP_PORT:-5002}
+      - CORS_ENABLED=true
+      - CORS_ORIGINS=*  # In production, set to specific origins
+    networks:
+      - spellchecker_network
+    restart: unless-stopped
+
+networks:
+  spellchecker_network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local

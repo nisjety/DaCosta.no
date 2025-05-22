@@ -1,0 +1,295 @@
+{
+    "info": {
+      "name": "ReadabilityGateway API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_postman_id": "ee8b5c2a-8b1d-4a46-a281-c1877c583a71",
+      "description": "API Collection for ReadabilityGateway Service"
+    },
+    "item": [
+      {
+        "name": "Service Information",
+        "item": [
+          {
+            "name": "Health Check",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{baseUrl}}/health",
+                "host": ["{{baseUrl}}"],
+                "path": ["health"]
+              },
+              "description": "Simple health check endpoint to verify if the service is running"
+            },
+            "response": []
+          },
+          {
+            "name": "Service Info",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/",
+                "host": ["{{baseUrl}}"],
+                "path": [""]
+              },
+              "description": "Get basic information about the service including available endpoints"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "AI Service",
+        "item": [
+          {
+            "name": "Sentiment Analysis",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is a test text for sentiment analysis.\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/ai/sentiment",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "ai", "sentiment"]
+              },
+              "description": "Analyze sentiment of provided text"
+            },
+            "response": []
+          },
+          {
+            "name": "Text Summarization",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is a longer text that needs to be summarized. It contains multiple sentences and paragraphs that the AI service will attempt to condense into a shorter summary while maintaining the key points and overall meaning.\",\n  \"maxLength\": 100,\n  \"type\": \"concise\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/ai/summarize",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "ai", "summarize"]
+              },
+              "description": "Generate a summary of provided text"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Text Transformations",
+        "item": [
+          {
+            "name": "Transform Text",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is a text to transform.\",\n  \"transformation\": \"simplify\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/transform",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "transform"]
+              },
+              "description": "Transform text using various operations (simplify, formalize, etc.)"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Spellcheck Service",
+        "item": [
+          {
+            "name": "English Spellcheck",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is a tekst with speling errors.\",\n  \"dialectSettings\": {\"gb\": true, \"us\": true}\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/spellcheck/english/check-text",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "spellcheck", "english", "check-text"]
+              },
+              "description": "Check spelling for English text"
+            },
+            "response": []
+          },
+          {
+            "name": "Norwegian Spellcheck",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"Dette er ein tekst med skrivefeil.\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/spellcheck/norwegian/check-text",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "spellcheck", "norwegian", "check-text"]
+              },
+              "description": "Check spelling for Norwegian text"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Grammar Service",
+        "item": [
+          {
+            "name": "Check Grammar",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This sentences have a grammar mistakes.\",\n  \"language\": \"english\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/grammar/check",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "grammar", "check"]
+              },
+              "description": "Check text for grammar issues"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "LIX Service",
+        "item": [
+          {
+            "name": "Analyze Readability",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"text\": \"This is a sample text to analyze for readability scores and metrics. The LIX service will calculate various readability metrics based on this text.\",\n  \"include_word_analysis\": true,\n  \"include_sentence_analysis\": true\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/lix/analyze",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "lix", "analyze"]
+              },
+              "description": "Calculate readability metrics for the provided text"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "WebSockets",
+        "item": [
+          {
+            "name": "General WebSocket",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/ws",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["ws"]
+              },
+              "description": "WebSocket endpoint for general communication with the services"
+            },
+            "response": []
+          },
+          {
+            "name": "Realtime Analysis WebSocket",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{wsBaseUrl}}/ws/realtime",
+                "host": ["{{wsBaseUrl}}"],
+                "path": ["ws", "realtime"]
+              },
+              "description": "WebSocket endpoint for realtime text analysis"
+            },
+            "response": []
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:5000",
+        "type": "string"
+      },
+      {
+        "key": "wsBaseUrl",
+        "value": "ws://localhost:5000",
+        "type": "string"
+      }
+    ]
+  }

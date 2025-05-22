@@ -1,0 +1,38 @@
+groups:
+  - name: lix_service_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[1m]) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 2 minutes."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 768
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected on {{ $labels.instance }}"
+          description: "Memory usage is above 768MB for more than 2 minutes."
+
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighHTTPErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP error rate on {{ $labels.instance }}"
+          description: "HTTP error rate is above 5% for more than 2 minutes." 

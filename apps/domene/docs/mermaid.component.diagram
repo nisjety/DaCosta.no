@@ -1,0 +1,121 @@
+flowchart TB
+    subgraph DC["Docker Compose Environment"]
+        subgraph DM["Domain Monitor Container"]
+            subgraph CORE["Core Services"]
+                DS["DomainService"]
+                MS["MonitorService"]
+                SS["SchedulerService"]
+                NS["NotificationService"]
+                RS["RegistrarService"]
+                EB["EventBusService"]
+            end
+            
+            subgraph COMM["Communication Layer"]
+                API["ApiService (REST)"]
+                WS["WebSocketService"]
+                SFS["Static File Server"]
+            end
+            
+            subgraph PROV["Service Providers"]
+                ASP["AxiosStatusProvider"]
+                DWP["DefaultWhoisProvider"]
+                TP["TwilioProvider"]
+                RCP["RedisCacheProvider"]
+            end
+            
+            subgraph REPO["Repositories"]
+                JSDR["JSONFileDomainRepository"]
+                MDR["MongoDomainRepository"]
+            end
+            
+            subgraph MODELS["Domain Models"]
+                DM1["Domain"]
+                DS1["DomainStatus"]
+            end
+        end
+        
+        subgraph MCONT["MongoDB Container"]
+            MongoDB[(MongoDB Database)]
+        end
+        
+        subgraph RCONT["Redis Container"]
+            Redis[(Redis Cache)]
+        end
+        
+        subgraph CCONT["Caddy Container"]
+            Caddy[("Caddy Web Server")]
+        end
+    end
+    
+    subgraph EXT["External"]
+        Browser["User Browser"]
+        SMS["SMS Recipient"]
+        WS1["WHOIS Servers"]
+        REG["Domain Registrars"]
+    end
+    
+    %% Core Service Relationships
+    DS --> EB
+    MS --> EB
+    SS --> EB
+    NS --> EB
+    EB --> COMM
+    
+    %% Repository Connections
+    DS --> JSDR
+    DS --> MDR
+    MDR --> MongoDB
+    
+    %% Provider Connections
+    DS --> ASP
+    DS --> DWP
+    NS --> TP
+    DS --> RCP
+    RCP --> Redis
+    
+    %% Communication Connections
+    DS --> API
+    MS --> API
+    SS --> API
+    API --> SFS
+    API --> WS
+    
+    %% External Connections
+    ASP --> WS1
+    DWP --> WS1
+    TP --> SMS
+    
+    %% Caddy Connections
+    API --> Caddy
+    WS --> Caddy
+    SFS --> Caddy
+    Caddy --> Browser
+    
+    %% Model Usage
+    DS --> DM1
+    DS --> DS1
+    MDR --> DM1
+    MDR --> DS1
+    
+    %% Event Flow
+    EB -.- API
+    EB -.- WS
+    
+    classDef core fill:#d1fae5,stroke:#059669,stroke-width:2px
+    classDef comm fill:#e0f2fe,stroke:#0369a1,stroke-width:2px
+    classDef providers fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
+    classDef db fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef repo fill:#fef9c3,stroke:#ca8a04,stroke-width:2px
+    classDef models fill:#dbeafe,stroke:#2563eb,stroke-width:1px
+    classDef external fill:#f3f4f6,stroke:#6b7280,stroke-width:1px
+    classDef container fill:#f9fafb,stroke:#9ca3af,stroke-width:1px,stroke-dasharray: 5 5
+    
+    class CORE,DS,MS,SS,NS,RS,EB core
+    class COMM,API,WS,SFS comm
+    class PROV,ASP,DWP,TP,RCP providers
+    class MongoDB,Redis db
+    class JSDR,MDR,REPO repo
+    class DM1,DS1,MODELS models
+    class Browser,SMS,WS1,REG,EXT external
+    class DC,DM,MCONT,RCONT,CCONT container
+    class Caddy comm

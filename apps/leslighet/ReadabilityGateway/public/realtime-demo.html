@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Unified Readability Analysis Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #2a5885;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .input-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+    .results-panel {
+      flex: 1.5;
+      min-width: 500px;
+    }
+    .panel {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    textarea {
+      width: 100%;
+      height: 250px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #2a5885;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #1c3f5f;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-indicator.connected {
+      background-color: #28a745;
+    }
+    .status-indicator.disconnected {
+      background-color: #dc3545;
+    }
+    .status-indicator.connecting {
+      background-color: #ffc107;
+    }
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .result-card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      background-color: #fff;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .card-title {
+      font-weight: bold;
+      margin: 0;
+      color: #2a5885;
+    }
+    .service-indicator {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .service-spellcheck {
+      background-color: #e3f2fd;
+      color: #0d47a1;
+    }
+    .service-lix {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+    }
+    .service-grammar {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    .service-sentiment {
+      background-color: #f3e5f5;
+      color: #4a148c;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-right: 10px;
+    }
+    .tab.active {
+      border-bottom: 2px solid #2a5885;
+      color: #2a5885;
+      font-weight: bold;
+    }
+    .tab:hover {
+      background-color: #f5f5f5;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow: auto;
+      font-family: 'Courier New', Courier, monospace;
+      max-height: 200px;
+    }
+    .highlight {
+      background-color: #fff3cd;
+      border-bottom: 2px dotted #856404;
+      padding: 0 2px;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 3px solid #2a5885;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+      display: inline-block;
+    }
+    .hidden {
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .message {
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    .message.info {
+      background-color: #cce5ff;
+      color: #004085;
+      border-left: 4px solid #007bff;
+    }
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    .messages-container {
+      margin-top: 15px;
+    }
+    .help-text {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .settings-panel {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .settings-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .settings-group {
+      margin-right: 20px;
+      margin-bottom: 10px;
+    }
+    .settings-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .checkbox-group {
+      margin-top: 5px;
+    }
+    .checkbox-label {
+      margin-right: 15px;
+      user-select: none;
+    }
+    .transform-panel {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+    }
+    .transform-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .transform-result {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .service-note {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #0d47a1;
+    }
+    .sentiment-result {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .sentiment-positive { color: #28a745; }
+    .sentiment-negative { color: #dc3545; }
+    .sentiment-neutral { color: #6c757d; }
+    .service-error {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Enhanced Unified Readability Analysis Demo</h1>
+  <p>This demo showcases real-time text analysis and transformation capabilities by seamlessly integrating multiple services: spelling, readability (LIX), sentiment analysis, and text transformation—all in one interface.</p>
+  
+  <div class="status-bar">
+    <div>
+      <span class="status-indicator disconnected" id="connectionIndicator"></span>
+      <span id="connectionStatus">Disconnected</span>
+    </div>
+    <div>
+      <span>Client ID: </span>
+      <span id="clientId">Not connected</span>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="input-panel">
+      <div class="panel">
+        <h2>Input</h2>
+        <textarea id="textInput" placeholder="Start typing to analyze text in real-time...">The utilization of natural language processing methodologies for enhancing textual readability metrics represents a significant advancement in computational linguistics. These technologies facilitate the automated analysis and transformation of complex documentation to achieve specific readability targets, thereby increasing accessibility across diverse demographic segments.</textarea>
+        <div>
+          <button id="connectBtn">Connect</button>
+          <button id="disconnectBtn" disabled>Disconnect</button>
+          <button id="analyzeBtn" disabled>Analyze Now</button>
+        </div>
+        
+        <div class="settings-panel">
+          <h3>Analysis Settings</h3>
+          <div class="settings-row">
+            <div class="settings-group">
+              <div class="settings-title">Spellcheck Languages</div>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" name="spellcheck" value="norwegian" checked> Norwegian
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="spellcheck" value="english" checked> English
+                </label>
+              </div>
+            </div>
+            
+            <div class="settings-group">
+              <div class="settings-title">Readability</div>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" name="lixOption" value="wordAnalysis" checked> Word Analysis
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="lixOption" value="sentenceAnalysis" checked> Sentence Analysis
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="settings-row">
+            <div class="settings-group">
+              <div class="settings-title">Real-time Updates</div>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="realtimeUpdates" checked> Enabled
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="service-note">
+            Note: Sentiment analysis is now automatically included in real-time analysis.
+          </div>
+        </div>
+        
+        <div class="transform-panel">
+          <h3>Text Transformation</h3>
+          <div class="transform-options">
+            <div>
+              <label>Transformation Type:</label>
+              <select id="transformType">
+                <option value="readability">Improve Readability</option>
+                <option value="feedback">Get Feedback</option>
+                <option value="style">Style & Tone</option>
+                <option value="restructure">Restructure</option>
+                <option value="intent">Analyze Intent</option>
+                <option value="educational">Educational Content</option>
+                <option value="translate">Translate</option>
+              </select>
+            </div>
+            <div id="readabilityOptions" class="transform-settings">
+              <label>Target LIX Score:</label>
+              <input type="number" id="targetLix" value="30" min="20" max="60">
+              <label>Tone:</label>
+              <select id="tone">
+                <option value="neutral">Neutral</option>
+                <option value="formal">Formal</option>
+                <option value="friendly">Friendly</option>
+                <option value="persuasive">Persuasive</option>
+              </select>
+            </div>
+            <div id="feedbackOptions" class="transform-settings hidden">
+              <label>Focus Area:</label>
+              <select id="focusArea">
+                <option value="all">Comprehensive Feedback</option>
+                <option value="grammar">Grammar</option>
+                <option value="readability">Readability</option>
+                <option value="style">Style</option>
+              </select>
+            </div>
+            <div id="styleOptions" class="transform-settings hidden">
+              <label>Target Style:</label>
+              <select id="targetStyle">
+                <option value="">Analyze Only</option>
+                <option value="corporate">Corporate</option>
+                <option value="academic">Academic</option>
+                <option value="legal">Legal</option>
+                <option value="emotional">Emotional/Engaging</option>
+                <option value="conversational">Conversational</option>
+              </select>
+            </div>
+            <div id="restructureOptions" class="transform-settings hidden">
+              <label>Restructure Type:</label>
+              <select id="restructureType">
+                <option value="paragraphs">Break into Paragraphs</option>
+                <option value="headings">Add Headings</option>
+                <option value="bullets">Convert to Bullet Points</option>
+                <option value="reverse-bullets">Convert Bullets to Paragraphs</option>
+              </select>
+            </div>
+            <div id="translateOptions" class="transform-settings hidden">
+              <label>Target Language:</label>
+              <select id="targetLanguage">
+                <option value="Norwegian">Norwegian</option>
+                <option value="English">English</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Spanish">Spanish</option>
+              </select>
+            </div>
+          </div>
+          <button id="transformBtn" disabled>Transform Text</button>
+          <div id="transformResult" class="transform-result hidden"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="results-panel">
+      <div class="panel">
+        <h2>Analysis Results</h2>
+        <div class="tabs">
+          <div class="tab active" data-view="cards">Card View</div>
+          <div class="tab" data-view="unified">Unified View</div>
+          <div class="tab" data-view="json">JSON View</div>
+        </div>
+        
+        <div id="loadingIndicator" class="hidden">
+          <span>Analyzing text...</span>
+          <div class="spinner"></div>
+        </div>
+        
+        <div id="noResultsMessage">No results yet. Start typing to see real-time analysis.</div>
+        
+        <div id="cardsView" class="results-container">
+          <!-- Results will be displayed here as cards -->
+        </div>
+        
+        <div id="unifiedView" class="hidden">
+          <!-- Unified view will go here -->
+        </div>
+        
+        <div id="jsonView" class="hidden">
+          <pre id="jsonOutput">No results yet.</pre>
+        </div>
+        
+        <div class="messages-container" id="messagesContainer">
+          <!-- Messages will appear here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // State
+    const state = {
+      ws: null,
+      clientId: null,
+      connected: false,
+      lastText: '',
+      lastAnalysis: null,
+      debounceTimer: null,
+      debounceDelay: 500, // ms
+      pendingRequestId: null,
+      currentView: 'cards'
+    };
+    
+    // DOM elements
+    const elements = {
+      textInput: document.getElementById('textInput'),
+      connectBtn: document.getElementById('connectBtn'),
+      disconnectBtn: document.getElementById('disconnectBtn'),
+      analyzeBtn: document.getElementById('analyzeBtn'),
+      connectionStatus: document.getElementById('connectionStatus'),
+      connectionIndicator: document.getElementById('connectionIndicator'),
+      clientId: document.getElementById('clientId'),
+      cardsView: document.getElementById('cardsView'),
+      unifiedView: document.getElementById('unifiedView'),
+      jsonView: document.getElementById('jsonView'),
+      jsonOutput: document.getElementById('jsonOutput'),
+      loadingIndicator: document.getElementById('loadingIndicator'),
+      noResultsMessage: document.getElementById('noResultsMessage'),
+      messagesContainer: document.getElementById('messagesContainer'),
+      realtimeUpdates: document.getElementById('realtimeUpdates'),
+      tabs: document.querySelectorAll('.tab'),
+      transformBtn: document.getElementById('transformBtn'),
+      transformType: document.getElementById('transformType'),
+      transformResult: document.getElementById('transformResult')
+    };
+    
+    // Initialize tab functionality
+    elements.tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        elements.tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        state.currentView = tab.dataset.view;
+        
+        elements.cardsView.classList.add('hidden');
+        elements.unifiedView.classList.add('hidden');
+        elements.jsonView.classList.add('hidden');
+        
+        switch(state.currentView) {
+          case 'cards':
+            elements.cardsView.classList.remove('hidden');
+            break;
+          case 'unified':
+            elements.unifiedView.classList.remove('hidden');
+            break;
+          case 'json':
+            elements.jsonView.classList.remove('hidden');
+            break;
+        }
+      });
+    });
+    
+    // Text input handler with debounce
+    elements.textInput.addEventListener('input', () => {
+      const text = elements.textInput.value;
+      
+      if (state.debounceTimer) {
+        clearTimeout(state.debounceTimer);
+      }
+      
+      if (elements.realtimeUpdates.checked && state.connected) {
+        state.debounceTimer = setTimeout(() => {
+          analyzeText(text);
+        }, state.debounceDelay);
+      }
+    });
+    
+    // Connect button handler
+    elements.connectBtn.addEventListener('click', connect);
+    
+    // Disconnect button handler
+    elements.disconnectBtn.addEventListener('click', disconnect);
+    
+    // Analyze button handler
+    elements.analyzeBtn.addEventListener('click', () => {
+      const text = elements.textInput.value;
+      analyzeText(text);
+    });
+    
+    // Transform type change handler
+    elements.transformType.addEventListener('change', () => {
+      document.querySelectorAll('.transform-settings').forEach(el => {
+        el.classList.add('hidden');
+      });
+      
+      const selectedType = elements.transformType.value;
+      const settingsId = `${selectedType}Options`;
+      const settingsElement = document.getElementById(settingsId);
+      if (settingsElement) {
+        settingsElement.classList.remove('hidden');
+      }
+    });
+    
+    // Transform button handler
+    elements.transformBtn.addEventListener('click', transformText);
+    
+    // Connect to the WebSocket server
+    function connect() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.hostname;
+      const port = window.location.port || '5010';
+      const wsUrl = `${protocol}//${host}:${port}/ws/realtime`;
+      
+      updateConnectionStatus('connecting');
+      
+      try {
+        state.ws = new WebSocket(wsUrl);
+        
+        state.ws.onopen = (event) => {
+          updateConnectionStatus('connected');
+          enableControls(true);
+          showMessage('Connected to Readability Gateway', 'success');
+        };
+        
+        state.ws.onclose = (event) => {
+          updateConnectionStatus('disconnected');
+          enableControls(false);
+          state.clientId = null;
+          elements.clientId.textContent = 'Not connected';
+          
+          if (event.wasClean) {
+            showMessage(`Disconnected: ${event.reason || 'Connection closed'}`, 'info');
+          } else {
+            showMessage('Connection closed unexpectedly', 'error');
+          }
+        };
+        
+        state.ws.onerror = (error) => {
+          updateConnectionStatus('disconnected');
+          showMessage('WebSocket error occurred', 'error');
+          console.error('WebSocket error:', error);
+        };
+        
+        state.ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Received message:', data);
+            
+            // Handle connection confirmation
+            if (data.type === 'connection' && data.status === 'connected') {
+              state.clientId = data.clientId;
+              elements.clientId.textContent = data.clientId;
+            }
+            
+            // Handle analysis started message
+            else if (data.type === 'analysis_started') {
+              elements.loadingIndicator.classList.remove('hidden');
+              elements.noResultsMessage.classList.add('hidden');
+              state.pendingRequestId = data.requestId;
+              
+              if (data.services && data.services.length > 0) {
+                showMessage(`Analysis started with services: ${data.services.join(', ')}`, 'info');
+              }
+            }
+            
+            // Handle analysis results
+            else if (data.type === 'analysis_result') {
+              elements.loadingIndicator.classList.add('hidden');
+              
+              // Store the full analysis
+              state.lastAnalysis = data;
+              
+              // Update all views
+              updateCardView(data);
+              updateUnifiedView(data);
+              updateJSONView(data);
+              
+              if (data.partial) {
+                showMessage('Showing partial results. Some services are still processing.', 'info');
+              }
+            }
+            
+            // Handle analysis updates (late responses)
+            else if (data.type === 'analysis_update') {
+              if (state.lastAnalysis && state.lastAnalysis.requestId === data.requestId) {
+                // Update the stored analysis with the new data
+                if (!state.lastAnalysis.services) {
+                  state.lastAnalysis.services = {};
+                }
+                
+                if (data.serviceType === 'sentiment' || data.serviceType === 'summary') {
+                  if (!state.lastAnalysis.services.ai) {
+                    state.lastAnalysis.services.ai = {};
+                  }
+                  state.lastAnalysis.services.ai[data.serviceType] = data.data;
+                } else {
+                  state.lastAnalysis.services[data.serviceType] = data.data;
+                }
+                
+                // Update all views with the new data
+                updateCardView(state.lastAnalysis);
+                updateUnifiedView(state.lastAnalysis);
+                updateJSONView(state.lastAnalysis);
+                
+                showMessage(`Received late update for ${data.serviceType}`, 'info');
+              }
+            }
+            
+            // Handle errors
+            else if (data.type === 'error') {
+              showMessage(data.message || 'An error occurred', 'error');
+              elements.loadingIndicator.classList.add('hidden');
+            }
+            
+            // Handle pong response
+            else if (data.action === 'pong') {
+              console.log('Received pong response');
+            }
+          } catch (error) {
+            console.error('Error parsing message:', error);
+            showMessage('Failed to parse server message', 'error');
+          }
+        };
+      } catch (error) {
+        console.error('Error creating WebSocket:', error);
+        updateConnectionStatus('disconnected');
+        showMessage('Failed to connect to WebSocket server', 'error');
+      }
+    }
+    
+    // Disconnect from the WebSocket server
+    function disconnect() {
+      if (state.ws) {
+        state.ws.close();
+        state.ws = null;
+      }
+    }
+    
+    // Update connection status UI
+    function updateConnectionStatus(status) {
+      switch (status) {
+        case 'connected':
+          elements.connectionStatus.textContent = 'Connected';
+          elements.connectionIndicator.className = 'status-indicator connected';
+          elements.connectBtn.disabled = true;
+          elements.disconnectBtn.disabled = false;
+          state.connected = true;
+          break;
+        case 'disconnected':
+          elements.connectionStatus.textContent = 'Disconnected';
+          elements.connectionIndicator.className = 'status-indicator disconnected';
+          elements.connectBtn.disabled = false;
+          elements.disconnectBtn.disabled = true;
+          state.connected = false;
+          break;
+        case 'connecting':
+          elements.connectionStatus.textContent = 'Connecting...';
+          elements.connectionIndicator.className = 'status-indicator connecting';
+          elements.connectBtn.disabled = true;
+          elements.disconnectBtn.disabled = true;
+          break;
+      }
+    }
+    
+    // Enable/disable controls
+    function enableControls(enabled) {
+      elements.analyzeBtn.disabled = !enabled;
+      elements.transformBtn.disabled = !enabled;
+      elements.textInput.disabled = !enabled;
+    }
+    
+    // Send analysis request
+    function analyzeText(text) {
+      if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        showMessage('Not connected to WebSocket server', 'error');
+        return;
+      }
+      
+      if (!text || text.trim() === '') {
+        return;
+      }
+      
+      if (state.lastText === text) {
+        return;
+      }
+      
+      state.lastText = text;
+      
+      // Get language options
+      const norwegianSpellcheck = document.querySelector('input[name="spellcheck"][value="norwegian"]').checked;
+      const englishSpellcheck = document.querySelector('input[name="spellcheck"][value="english"]').checked;
+      
+      // Determine primary language based on selected spellcheck options
+      const language = norwegianSpellcheck ? 'norwegian' : (englishSpellcheck ? 'english' : 'norwegian');
+      
+      // Get dialect settings based on language
+      let dialectSettings = {};
+      if (norwegianSpellcheck) {
+        dialectSettings = { nb: true, nn: true };
+      } else if (englishSpellcheck) {
+        dialectSettings = { gb: true, us: true };
+      }
+      
+      // Get options
+      const options = {
+        language: language,
+        dialectSettings: dialectSettings,
+        include_word_analysis: document.querySelector('input[name="lixOption"][value="wordAnalysis"]').checked,
+        include_sentence_analysis: document.querySelector('input[name="lixOption"][value="sentenceAnalysis"]').checked
+      };
+      
+      // Send analysis request
+      state.ws.send(JSON.stringify({
+        action: 'analyze',
+        text: text,
+        options: options
+      }));
+      
+      // Show loading indicator
+      elements.loadingIndicator.classList.remove('hidden');
+      elements.noResultsMessage.classList.add('hidden');
+    }
+    
+    // Transform text using REST API
+    async function transformText() {
+      const text = elements.textInput.value.trim();
+      if (!text) {
+        showMessage('Please enter some text to transform', 'error');
+        return;
+      }
+      
+      const transformType = elements.transformType.value;
+      let endpoint = '';
+      let data = { text };
+      
+      // Build request based on transform type
+      switch (transformType) {
+        case 'readability':
+          endpoint = '/api/transform/readability';
+          data.targetLix = parseInt(document.getElementById('targetLix').value);
+          data.tone = document.getElementById('tone').value;
+          data.purpose = 'general';
+          break;
+        case 'feedback':
+          endpoint = '/api/transform/feedback';
+          data.focusArea = document.getElementById('focusArea').value;
+          break;
+        case 'style':
+          endpoint = '/api/transform/style';
+          data.targetStyle = document.getElementById('targetStyle').value;
+          data.fixMismatch = true;
+          break;
+        case 'restructure':
+          endpoint = '/api/transform/restructure';
+          data.restructureType = document.getElementById('restructureType').value;
+          break;
+        case 'intent':
+          endpoint = '/api/transform/intent';
+          break;
+        case 'educational':
+          endpoint = '/api/transform/educational';
+          data.educationType = 'explain';
+          break;
+        case 'translate':
+          endpoint = '/api/transform/translate';
+          data.sourceLanguage = 'English';
+          data.targetLanguage = document.getElementById('targetLanguage').value;
+          data.targetLix = 35;
+          break;
+      }
+      
+      try {
+        elements.transformBtn.disabled = true;
+        elements.transformBtn.textContent = 'Transforming...';
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        displayTransformResult(result, transformType);
+        showMessage('Text transformation complete!', 'success');
+      } catch (error) {
+        showMessage(`Error: ${error.message}`, 'error');
+      } finally {
+        elements.transformBtn.disabled = !state.connected;
+        elements.transformBtn.textContent = 'Transform Text';
+      }
+    }
+    
+    // Update card view
+    function updateCardView(data) {
+      const services = data.services || {};
+      elements.cardsView.innerHTML = '';
+      
+      if (Object.keys(services).length === 0) {
+        elements.noResultsMessage.classList.remove('hidden');
+        return;
+      } else {
+        elements.noResultsMessage.classList.add('hidden');
+      }
+      
+      // Spellcheck card
+      if (services.spellcheck) {
+        const spellcheckData = services.spellcheck;
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        
+        let spellcheckContent = '';
+        if (!spellcheckData || spellcheckData.error || spellcheckData.type !== 'spelling') {
+          spellcheckContent = `<div class="service-error">Spellcheck error: ${spellcheckData?.error || 'Service unavailable'}</div>`;
+        } else if (!spellcheckData.errors || spellcheckData.errors.length === 0) {
+          spellcheckContent = '<p>No spelling errors detected.</p>';
+        } else {
+          spellcheckContent = `<p><strong>${spellcheckData.errors.length}</strong> potential spelling errors found:</p>`;
+          spellcheckContent += '<ul>';
+          
+          spellcheckData.errors.forEach(error => {
+            spellcheckContent += `<li><span class="highlight">${error.word || error.text}</span>`;
+            if (error.suggestions && error.suggestions.length > 0) {
+              spellcheckContent += ` - Suggestions: ${error.suggestions.slice(0, 5).join(', ')}`;
+            }
+            spellcheckContent += '</li>';
+          });
+          
+          spellcheckContent += '</ul>';
+        }
+        
+        card.innerHTML = `
+          <div class="card-header">
+            <h3 class="card-title">Spelling</h3>
+            <span class="service-indicator service-spellcheck">Spellcheck</span>
+          </div>
+          <div class="card-content">
+            ${spellcheckContent}
+          </div>
+        `;
+        elements.cardsView.appendChild(card);
+      }
+      
+      // LIX card
+      if (services.lix) {
+        const lixData = services.lix;
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        
+        let lixContent = '';
+        if (!lixData || lixData.error) {
+          lixContent = `<div class="service-error">LIX analysis error: ${lixData?.error || 'Service unavailable'}</div>`;
+        } else {
+          // Handle different response formats from LIX service
+          const readability = lixData.readability || lixData;
+          const lix = readability.lix?.score || readability.lix || 'N/A';
+          
+          lixContent = `
+            <p><strong>LIX Score:</strong> ${lix}</p>
+          `;
+          
+          if (readability.lix?.interpretation || readability.lix?.category) {
+            lixContent += `<p><strong>Difficulty Level:</strong> ${readability.lix.interpretation || readability.lix.category}</p>`;
+          }
+          
+          if (lixData.text_analysis?.statistics) {
+            const stats = lixData.text_analysis.statistics;
+            lixContent += `
+              <p><strong>Text Statistics:</strong></p>
+              <ul>
+                <li>Words: ${stats.word_count || 0}</li>
+                <li>Sentences: ${stats.sentence_count || 0}</li>
+                <li>Average sentence length: ${stats.avg_sentence_length?.toFixed(1) || 0} words</li>
+                <li>Long words: ${stats.long_words_count || 0}</li>
+              </ul>
+            `;
+          }
+        }
+        
+        card.innerHTML = `
+          <div class="card-header">
+            <h3 class="card-title">Readability</h3>
+            <span class="service-indicator service-lix">LIX</span>
+          </div>
+          <div class="card-content">
+            ${lixContent}
+          </div>
+        `;
+        elements.cardsView.appendChild(card);
+      }
+      
+      // AI/Sentiment card
+      if (services.ai && services.ai.sentiment) {
+        const sentimentData = services.ai.sentiment;
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        
+        let sentimentContent = '';
+        if (sentimentData.error) {
+          sentimentContent = `<div class="service-error">Sentiment analysis error: ${sentimentData.error}</div>`;
+        } else {
+          const sentiment = sentimentData.sentiment || 'neutral';
+          const score = sentimentData.score || 0;
+          const confidence = sentimentData.confidence || 0;
+          let sentimentDisplay = '';
+          
+          if (score > 0.5) {
+            sentimentDisplay = '😃 Very Positive';
+          } else if (score > 0) {
+            sentimentDisplay = '🙂 Positive';
+          } else if (score === 0) {
+            sentimentDisplay = '😐 Neutral';
+          } else if (score > -0.5) {
+            sentimentDisplay = '🙁 Negative';
+          } else {
+            sentimentDisplay = '😠 Very Negative';
+          }
+          
+          sentimentContent = `
+            <p><strong>Detected Sentiment:</strong> ${sentimentDisplay}</p>
+            <p><strong>Sentiment Score:</strong> ${score.toFixed(2)} (range: -1 to 1)</p>
+            <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(0)}%</p>
+            ${sentimentData.analysis ? `<p><strong>Analysis:</strong> ${sentimentData.analysis}</p>` : ''}
+          `;
+        }
+        
+        card.innerHTML = `
+          <div class="card-header">
+            <h3 class="card-title">Sentiment Analysis</h3>
+            <span class="service-indicator service-sentiment">AI</span>
+          </div>
+          <div class="card-content">
+            ${sentimentContent}
+          </div>
+        `;
+        elements.cardsView.appendChild(card);
+      }
+    }
+    
+    // Update JSON view
+    function updateJSONView(data) {
+      if (!data) {
+        elements.jsonOutput.textContent = 'No data available';
+        return;
+      }
+      
+      elements.jsonOutput.textContent = JSON.stringify(data, null, 2);
+    }
+    
+    // Show message
+    function showMessage(text, type = 'info') {
+      const message = document.createElement('div');
+      message.className = `message ${type}`;
+      message.textContent = text;
+      
+      elements.messagesContainer.insertBefore(message, elements.messagesContainer.firstChild);
+      
+      // Remove message after delay
+      setTimeout(() => {
+        if (message.parentNode) {
+          message.style.opacity = '0';
+          setTimeout(() => {
+            if (message.parentNode) {
+              message.parentNode.removeChild(message);
+            }
+          }, 500);
+        }
+      }, 5000);
+    }
+    
+    // Update unified view
+    function updateUnifiedView(data) {
+      if (!data || !data.services) {
+        elements.unifiedView.innerHTML = '<p>No analysis data available</p>';
+        return;
+      }
+      
+      const services = data.services;
+      let content = '';
+      
+      // Create text with marked issues
+      const text = data.text || '';
+      let markedText = text;
+      const issues = [];
+      
+      // Collect spelling errors if available
+      if (services.spellcheck && services.spellcheck.errors) {
+        services.spellcheck.errors.forEach(error => {
+          if (error.offset !== undefined && error.length !== undefined) {
+            issues.push({
+              offset: error.offset,
+              length: error.length,
+              type: 'spelling',
+              message: `Spelling: ${error.word || error.text}. Suggestions: ${(error.suggestions || []).join(', ')}`
+            });
+          }
+        });
+      }
+      
+      // Collect grammar issues if available
+      if (services.grammar && services.grammar.issues) {
+        services.grammar.issues.forEach(issue => {
+          if (issue.offset !== undefined && issue.length !== undefined) {
+            issues.push({
+              offset: issue.offset,
+              length: issue.length,
+              type: 'grammar',
+              message: `Grammar: ${issue.message || issue.type}. ${issue.suggestion ? 'Suggestion: ' + issue.suggestion : ''}`
+            });
+          }
+        });
+      }
+      
+      // Sort issues by offset (descending) to avoid index shifting when replacing text
+      issues.sort((a, b) => b.offset - a.offset);
+      
+      // Apply markup to text
+      let htmlText = text;
+      issues.forEach(issue => {
+        const beforeIssue = htmlText.substring(0, issue.offset);
+        const issueText = htmlText.substring(issue.offset, issue.offset + issue.length);
+        const afterIssue = htmlText.substring(issue.offset + issue.length);
+        
+        const issueClass = issue.type === 'spelling' ? 'spelling-issue' : 'grammar-issue';
+        htmlText = beforeIssue + 
+                 `<span class="${issueClass}" title="${issue.message}">${issueText}</span>` + 
+                 afterIssue;
+      });
+      
+      // Create readability section
+      let readabilitySection = '<div class="unified-section readability-section">';
+      readabilitySection += '<h3>Readability Analysis</h3>';
+      
+      if (services.lix) {
+        const lixData = services.lix;
+        const readability = lixData.readability || lixData;
+        readabilitySection += `
+          <div class="unified-metrics">
+            <div class="metric">
+              <span class="metric-name">LIX Score:</span>
+              <span class="metric-value">${readability.lix?.score || readability.lix || 'N/A'}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-name">Interpretation:</span>
+              <span class="metric-value">${readability.lix?.interpretation || readability.lix?.category || 'N/A'}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        readabilitySection += '<p>No readability data available</p>';
+      }
+      
+      readabilitySection += '</div>';
+      
+      // Create sentiment section if available
+      let sentimentSection = '';
+      if (services.ai && services.ai.sentiment) {
+        const sentimentData = services.ai.sentiment;
+        sentimentSection = '<div class="unified-section sentiment-section">';
+        sentimentSection += '<h3>Sentiment Analysis</h3>';
+        
+        if (!sentimentData.error) {
+          const sentiment = sentimentData.sentiment || 'neutral';
+          const score = sentimentData.score || 0;
+          const confidence = sentimentData.confidence || 0;
+          
+          sentimentSection += `
+            <div class="unified-metrics">
+              <div class="metric">
+                <span class="metric-name">Sentiment:</span>
+                <span class="metric-value sentiment-${sentiment.toLowerCase()}">${sentiment}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-name">Score:</span>
+                <span class="metric-value">${score.toFixed(2)}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-name">Confidence:</span>
+                <span class="metric-value">${(confidence * 100).toFixed(0)}%</span>
+              </div>
+            </div>
+          `;
+        } else {
+          sentimentSection += `<p>Error: ${sentimentData.error}</p>`;
+        }
+        
+        sentimentSection += '</div>';
+      }
+      
+      // Create summary section if available
+      let summarySection = '';
+      if (services.ai && services.ai.summary) {
+        const summaryData = services.ai.summary;
+        summarySection = '<div class="unified-section summary-section">';
+        summarySection += '<h3>Summary</h3>';
+        
+        if (!summaryData.error) {
+          const summaryText = summaryData.summary || 'No summary available';
+          const compressionRatio = summaryData.compressionRatio;
+          const originalLength = summaryData.originalLength;
+          const summaryLength = summaryData.summaryLength;
+          
+          summarySection += `
+            <div class="summary-text">
+              <p>${summaryText}</p>
+            </div>
+            <div class="summary-metrics">
+              <span class="metric-name">Compression Ratio:</span>
+              <span class="metric-value">${compressionRatio ? compressionRatio.toFixed(2) : 'N/A'}</span>
+            </div>
+          `;
+        } else {
+          summarySection += `<p>Error: ${summaryData.error}</p>`;
+        }
+        
+        summarySection += '</div>';
+      }
+      
+      // Create text statistics section
+      let statisticsSection = '<div class="unified-section statistics-section">';
+      statisticsSection += '<h3>Text Statistics</h3>';
+      
+      if (services.lix && services.lix.text_analysis && services.lix.text_analysis.statistics) {
+        const stats = services.lix.text_analysis.statistics;
+        statisticsSection += `
+          <div class="unified-metrics">
+            <div class="metric">
+              <span class="metric-name">Words:</span>
+              <span class="metric-value">${stats.word_count || 0}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-name">Sentences:</span>
+              <span class="metric-value">${stats.sentence_count || 0}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-name">Avg. Sentence Length:</span>
+              <span class="metric-value">${stats.avg_sentence_length?.toFixed(1) || 0} words</span>
+            </div>
+            <div class="metric">
+              <span class="metric-name">Long Words:</span>
+              <span class="metric-value">${stats.long_words_percentage?.toFixed(1) || 0}%</span>
+            </div>
+          </div>
+        `;
+      } else {
+        statisticsSection += '<p>No text statistics available</p>';
+      }
+      
+      statisticsSection += '</div>';
+      
+      // Compile the full unified view
+      content = `
+        <div class="unified-container">
+          <div class="unified-text">
+            <h3>Text with Markup</h3>
+            <p class="marked-text">${htmlText || 'No text available'}</p>
+          </div>
+          ${readabilitySection}
+          ${sentimentSection}
+          ${summarySection}
+          ${statisticsSection}
+        </div>
+        <style>
+          .unified-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+          }
+          .unified-text {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+          }
+          .marked-text {
+            line-height: 1.6;
+            white-space: pre-wrap;
+          }
+          .spelling-issue {
+            background-color: #ffecb3;
+            text-decoration: underline wavy #f57c00;
+            cursor: help;
+          }
+          .grammar-issue {
+            background-color: #e1f5fe;
+            text-decoration: underline wavy #0288d1;
+            cursor: help;
+          }
+          .unified-section {
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+          }
+          .unified-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+          }
+          .metric {
+            min-width: 200px;
+          }
+          .metric-name {
+            font-weight: bold;
+          }
+          .metric.description {
+            flex-basis: 100%;
+          }
+          .summary-section {
+            background-color: #f8f9fa;
+          }
+          .summary-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+          }
+          .summary-metrics {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+          }
+        </style>
+      `;
+      
+      elements.unifiedView.innerHTML = content;
+    }
+    
+    // Display transform result
+    function displayTransformResult(result, transformType) {
+      if (!result) {
+        elements.transformResult.innerHTML = '<p>No transformation result available</p>';
+        return;
+      }
+      
+      elements.transformResult.classList.remove('hidden');
+      
+      let content = '';
+      
+      // Display transform result based on type
+      switch (transformType) {
+        case 'readability':
+          content = `
+            <h4>Improved Readability</h4>
+            <div class="transform-content">
+              <p>${result.transformed_text || result.transformedText || 'No transformed text available'}</p>
+              ${result.lix_score ? `<p>New LIX Score: <strong>${result.lix_score}</strong></p>` : ''}
+              ${result.metrics ? `
+                <div class="transform-metrics">
+                  <p><strong>Metrics:</strong></p>
+                  <ul>
+                    ${Object.entries(result.metrics).map(([key, value]) => 
+                      `<li>${key}: ${typeof value === 'number' ? value.toFixed(2) : value}</li>`
+                    ).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          break;
+          
+        case 'feedback':
+          content = `
+            <h4>Text Feedback</h4>
+            <div class="transform-content">
+              ${result.feedback ? `
+                <div class="feedback-section">
+                  <p><strong>General Feedback:</strong></p>
+                  <p>${result.feedback.general || 'No general feedback available'}</p>
+                </div>
+              ` : ''}
+              
+              ${result.suggestions ? `
+                <div class="feedback-section">
+                  <p><strong>Suggestions:</strong></p>
+                  <ul>
+                    ${Array.isArray(result.suggestions) 
+                      ? result.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('') 
+                      : `<li>${result.suggestions}</li>`}
+                  </ul>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          break;
+          
+        case 'style':
+          content = `
+            <h4>Style Analysis</h4>
+            <div class="transform-content">
+              ${result.analysis ? `
+                <div class="style-analysis">
+                  <p><strong>Detected Style:</strong> ${result.analysis.style || 'Unknown'}</p>
+                  <p><strong>Tone:</strong> ${result.analysis.tone || 'Neutral'}</p>
+                  <p><strong>Formality:</strong> ${result.analysis.formality || 'Medium'}</p>
+                </div>
+              ` : ''}
+              
+              ${result.transformed_text || result.transformedText ? `
+                <div class="transformed-text">
+                  <p><strong>Transformed Text:</strong></p>
+                  <p>${result.transformed_text || result.transformedText}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          break;
+          
+        case 'restructure':
+          content = `
+            <h4>Restructured Text</h4>
+            <div class="transform-content">
+              ${result.transformed_text || result.transformedText ? 
+                `<div class="restructured-text">${result.transformed_text || result.transformedText}</div>` : 
+                '<p>No restructured text available</p>'}
+            </div>
+          `;
+          break;
+          
+        case 'intent':
+          content = `
+            <h4>Intent Analysis</h4>
+            <div class="transform-content">
+              ${result.intent ? `
+                <div class="intent-analysis">
+                  <p><strong>Primary Intent:</strong> ${result.intent.primary || 'Unknown'}</p>
+                  ${result.intent.confidence ? 
+                    `<p><strong>Confidence:</strong> ${(result.intent.confidence * 100).toFixed(1)}%</p>` : ''}
+                  ${result.intent.secondary ? 
+                    `<p><strong>Secondary Intent:</strong> ${result.intent.secondary}</p>` : ''}
+                </div>
+              ` : ''}
+              
+              ${result.analysis ? `
+                <div class="intent-details">
+                  <p><strong>Analysis:</strong></p>
+                  <p>${result.analysis}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          break;
+          
+        case 'educational':
+          content = `
+            <h4>Educational Content</h4>
+            <div class="transform-content">
+              ${result.explanation ? `
+                <div class="educational-content">
+                  <p><strong>Explanation:</strong></p>
+                  <p>${result.explanation}</p>
+                  
+                  ${result.key_points ? `
+                    <p><strong>Key Points:</strong></p>
+                    <ul>
+                      ${Array.isArray(result.key_points) ? 
+                        result.key_points.map(point => `<li>${point}</li>`).join('') : 
+                        `<li>${result.key_points}</li>`}
+                    </ul>
+                  ` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `;
+          break;
+          
+        case 'translate':
+          content = `
+            <h4>Translation</h4>
+            <div class="transform-content">
+              ${result.translated_text || result.translatedText ? `
+                <div class="translation">
+                  <p><strong>Translated Text (${result.target_language || result.targetLanguage || 'Target language'}):</strong></p>
+                  <p>${result.translated_text || result.translatedText}</p>
+                  
+                  ${result.lix_score ? `
+                    <p><strong>LIX Score:</strong> ${result.lix_score}</p>
+                  ` : ''}
+                </div>
+              ` : '<p>No translation available</p>'}
+            </div>
+          `;
+          break;
+          
+        default:
+          content = `
+            <h4>Transformation Result</h4>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+      }
+      
+      // Add CSS for styling the transform result
+      content += `
+        <style>
+          .transform-content {
+            margin-top: 15px;
+          }
+          .transform-metrics {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+          }
+          .feedback-section, .style-analysis, .intent-analysis, .educational-content, .translation {
+            margin-bottom: 15px;
+          }
+          .transformed-text, .restructured-text {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+          }
+          .intent-details {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+          }
+        </style>
+      `;
+      
+      elements.transformResult.innerHTML = content;
+      
+      // Scroll to the result to ensure it's visible
+      setTimeout(() => {
+        elements.transformResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>

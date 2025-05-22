@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Service Testing Interface</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2ecc71;
+      --background-color: #f7f9fc;
+      --card-color: #ffffff;
+      --text-color: #333333;
+      --border-color: #e0e0e0;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--background-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background-color: var(--card-color);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #888;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      color: var(--primary-color);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    textarea, select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    textarea:focus, select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .btn:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: #95a5a6;
+    }
+
+    .btn-secondary:hover {
+      background-color: #7f8c8d;
+    }
+
+    .output {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      min-height: 200px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      line-height: 1.5;
+    }
+
+    .loading-indicator {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .typing-indicator {
+      display: inline-block;
+      width: 20px;
+      text-align: left;
+    }
+
+    .typing-indicator::after {
+      content: '▋';
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .status {
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .status.error {
+      background-color: #ffdddd;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .status.success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .model-info {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      color: #888;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .tab-btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Service Testing Interface</h1>
+      <p class="subtitle">Test OpenAI streaming and NLP models</p>
+    </header>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="openai">OpenAI Chat</button>
+        <button class="tab-btn" data-tab="sentiment">Sentiment Analysis</button>
+        <button class="tab-btn" data-tab="summarize">Summarization</button>
+        <button class="tab-btn" data-tab="correction">Text Correction</button>
+      </div>
+
+      <!-- OpenAI Chat Tab -->
+      <div id="openai" class="tab-content active">
+        <form id="openai-form">
+          <div class="form-group">
+            <label for="openai-messages">Messages (will be formatted as a conversation):</label>
+            <textarea id="openai-messages" required>I want you to explain the concept of streaming in AI APIs in a paragraph. Make it accessible to a non-technical audience.</textarea>
+            <div class="model-info">Enter your prompt here. The system will format it as a conversation.</div>
+          </div>
+          <div class="form-group">
+            <label for="openai-model">Model:</label>
+            <select id="openai-model" required>
+              <option value="gpt-4">GPT-4</option>
+              <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="openai-temp">Temperature:</label>
+            <input type="number" id="openai-temp" min="0" max="2" step="0.1" value="0.7">
+          </div>
+          <div class="form-group checkbox-container">
+            <input type="checkbox" id="openai-stream" checked>
+            <label for="openai-stream">Enable streaming</label>
+          </div>
+          <button type="submit" class="btn">Send Request</button>
+        </form>
+        <div id="openai-loading" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Processing request...</p>
+        </div>
+        <div id="openai-status" class="status"></div>
+        <div class="output" id="openai-output"></div>
+      </div>
+
+      <!-- Sentiment Analysis Tab -->
+      <div id="sentiment" class="tab-content">
+        <form id="sentiment-form">
+          <div class="form-group">
+            <label for="sentiment-text">Text to analyze:</label>
+            <textarea id="sentiment-text" required>Dette er en veldig fin dag, og jeg er veldig fornøyd med resultatet.</textarea>
+          </div>
+          <button type="submit" class="btn">Analyze Sentiment</button>
+        </form>
+        <div id="sentiment-loading" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Analyzing sentiment...</p>
+        </div>
+        <div id="sentiment-status" class="status"></div>
+        <div class="output" id="sentiment-output"></div>
+      </div>
+
+      <!-- Summarization Tab -->
+      <div id="summarize" class="tab-content">
+        <form id="summarize-form">
+          <div class="form-group">
+            <label for="summarize-text">Text to summarize:</label>
+            <textarea id="summarize-text" required>Norge er et nordisk land som ligger på den vestlige delen av den skandinaviske halvøya på det europeiske kontinentet. Det grenser til Sverige i øst og i nordøst til Finland og Russland. Norge har en lang kystlinje mot Nordsjøen i vest og Barentshavet i nord. Landet har en total befolkning på omtrent 5,4 millioner mennesker og dekker et landareal på 323 802 kvadratkilometer. Norges hovedstad og største by er Oslo. Norge er kjent for sine fjorder, fjell, nordlys og midnattssol. Det er et konstitusjonelt monarki med parlamentarisk demokrati. Landet har en veldig høy levestandard og har blitt kåret som et av de beste landene i verden å bo i.</textarea>
+          </div>
+          <button type="submit" class="btn">Summarize Text</button>
+        </form>
+        <div id="summarize-loading" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Generating summary...</p>
+        </div>
+        <div id="summarize-status" class="status"></div>
+        <div class="output" id="summarize-output"></div>
+      </div>
+
+      <!-- Text Correction Tab -->
+      <div id="correction" class="tab-content">
+        <form id="correction-form">
+          <div class="form-group">
+            <label for="correction-text">Text to correct:</label>
+            <textarea id="correction-text" required>Dette er en dårlig seting med feil grammatikk.</textarea>
+          </div>
+          <button type="submit" class="btn">Correct Text</button>
+        </form>
+        <div id="correction-loading" class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Correcting text...</p>
+        </div>
+        <div id="correction-status" class="status"></div>
+        <div class="output" id="correction-output"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p>AI Service Testing Interface • <span id="current-date">May 1, 2025</span></p>
+    </footer>
+  </div>
+
+  <script>
+    // Update current date
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('no-NO');
+
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Function to activate a specific tab
+    const activateTab = (tabId) => {
+      // Remove active class from all buttons and contents
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to current button and content
+      const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      if (targetButton) {
+        targetButton.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      }
+    };
+
+    // Handle click events
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+        activateTab(tabId);
+        // Update URL hash for bookmarking
+        history.pushState(null, null, `#${tabId}`);
+      });
+    });
+
+    // Check for hash in URL on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash && document.getElementById(hash)) {
+        activateTab(hash);
+      }
+    });
+
+    // Handle hash changes (browser back/forward buttons)
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash && document.getElementById(hash)) {
+        activateTab(hash);
+      }
+    });
+
+    // OpenAI Chat Form
+    const openaiForm = document.getElementById('openai-form');
+    const openaiOutput = document.getElementById('openai-output');
+    const openaiLoading = document.getElementById('openai-loading');
+    const openaiStatus = document.getElementById('openai-status');
+
+    openaiForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const messages = document.getElementById('openai-messages').value;
+      const model = document.getElementById('openai-model').value;
+      const temperature = parseFloat(document.getElementById('openai-temp').value);
+      const stream = document.getElementById('openai-stream').checked;
+      
+      // Clear previous output
+      openaiOutput.textContent = '';
+      openaiStatus.style.display = 'none';
+      openaiStatus.className = 'status';
+      openaiLoading.style.display = 'block';
+
+      // Format the messages for OpenAI API
+      const formattedMessages = [
+        {role: 'system', content: 'You are a helpful assistant.'},
+        {role: 'user', content: messages}
+      ];
+
+      if (stream) {
+        // Handle streaming response
+        try {
+          const eventSource = new EventSource(`/api/ai/chat?stream=true&model=${encodeURIComponent(model)}&temperature=${temperature}`);
+          
+          eventSource.addEventListener('message', (event) => {
+            if (event.data === '[DONE]') {
+              eventSource.close();
+              openaiLoading.style.display = 'none';
+              return;
+            }
+
+            try {
+              const data = JSON.parse(event.data);
+              if (data.content) {
+                openaiOutput.textContent += data.content;
+              }
+            } catch (error) {
+              console.error('Error parsing SSE message:', error);
+            }
+          });
+
+          eventSource.addEventListener('error', (error) => {
+            eventSource.close();
+            openaiLoading.style.display = 'none';
+            openaiStatus.textContent = `Error: ${error.message || 'Server connection lost'}`;
+            openaiStatus.className = 'status error';
+            openaiStatus.style.display = 'block';
+          });
+
+          // Send the actual request to start the stream
+          fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messages: formattedMessages,
+              model,
+              temperature,
+              stream
+            })
+          }).catch(error => {
+            eventSource.close();
+            openaiLoading.style.display = 'none';
+            openaiStatus.textContent = `Error: ${error.message}`;
+            openaiStatus.className = 'status error';
+            openaiStatus.style.display = 'block';
+          });
+
+        } catch (error) {
+          openaiLoading.style.display = 'none';
+          openaiStatus.textContent = `Error: ${error.message}`;
+          openaiStatus.className = 'status error';
+          openaiStatus.style.display = 'block';
+        }
+      } else {
+        // Handle standard response
+        try {
+          const response = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messages: formattedMessages,
+              model,
+              temperature,
+              stream
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          openaiLoading.style.display = 'none';
+          
+          if (data.choices && data.choices[0] && data.choices[0].message) {
+            openaiOutput.textContent = data.choices[0].message.content;
+          } else {
+            openaiOutput.textContent = JSON.stringify(data, null, 2);
+          }
+        } catch (error) {
+          openaiLoading.style.display = 'none';
+          openaiStatus.textContent = `Error: ${error.message}`;
+          openaiStatus.className = 'status error';
+          openaiStatus.style.display = 'block';
+        }
+      }
+    });
+
+    // Sentiment Analysis Form
+    const sentimentForm = document.getElementById('sentiment-form');
+    const sentimentOutput = document.getElementById('sentiment-output');
+    const sentimentLoading = document.getElementById('sentiment-loading');
+    const sentimentStatus = document.getElementById('sentiment-status');
+
+    sentimentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const text = document.getElementById('sentiment-text').value;
+      
+      sentimentOutput.textContent = '';
+      sentimentStatus.style.display = 'none';
+      sentimentStatus.className = 'status';
+      sentimentLoading.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/ai/sentiment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        sentimentLoading.style.display = 'none';
+        sentimentOutput.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        sentimentLoading.style.display = 'none';
+        sentimentStatus.textContent = `Error: ${error.message}`;
+        sentimentStatus.className = 'status error';
+        sentimentStatus.style.display = 'block';
+      }
+    });
+
+    // Summarization Form
+    const summarizeForm = document.getElementById('summarize-form');
+    const summarizeOutput = document.getElementById('summarize-output');
+    const summarizeLoading = document.getElementById('summarize-loading');
+    const summarizeStatus = document.getElementById('summarize-status');
+
+    summarizeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const text = document.getElementById('summarize-text').value;
+      
+      summarizeOutput.textContent = '';
+      summarizeStatus.style.display = 'none';
+      summarizeStatus.className = 'status';
+      summarizeLoading.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/ai/summarize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        summarizeLoading.style.display = 'none';
+        summarizeOutput.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        summarizeLoading.style.display = 'none';
+        summarizeStatus.textContent = `Error: ${error.message}`;
+        summarizeStatus.className = 'status error';
+        summarizeStatus.style.display = 'block';
+      }
+    });
+
+    // Text Correction Form
+    const correctionForm = document.getElementById('correction-form');
+    const correctionOutput = document.getElementById('correction-output');
+    const correctionLoading = document.getElementById('correction-loading');
+    const correctionStatus = document.getElementById('correction-status');
+
+    correctionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const text = document.getElementById('correction-text').value;
+      
+      correctionOutput.textContent = '';
+      correctionStatus.style.display = 'none';
+      correctionStatus.className = 'status';
+      correctionLoading.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/ai/correct', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        correctionLoading.style.display = 'none';
+        correctionOutput.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        correctionLoading.style.display = 'none';
+        correctionStatus.textContent = `Error: ${error.message}`;
+        correctionStatus.className = 'status error';
+        correctionStatus.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

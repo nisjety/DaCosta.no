@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Management | Spellchecker Admin</title>
+  <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+        <div class="header-title">
+          <h1>Spellchecker Word Management</h1>
+          <a href="/" class="home-link">Back to Spellchecker</a>
+        </div>
+        <div class="header-actions">
+          <select id="language-selector">
+            <option value="no">Norwegian</option>
+            <option value="en">English</option>
+          </select>
+          <button id="refresh-btn" class="btn btn-secondary">Refresh Data</button>
+        </div>
+      </header>
+
+    
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="pending">Pending Words</button>
+      <button class="tab-btn" data-tab="approved">Approved Words</button>
+      <button class="tab-btn" data-tab="rejected">Rejected Words</button>
+      <button class="tab-btn" data-tab="custom">Custom Dictionary</button>
+      <button class="tab-btn" data-tab="stats">Statistics</button>
+    </div>
+
+    <!-- Pending Words Tab -->
+    <div id="pending-tab" class="tab-content active">
+      <div class="tab-header">
+        <h2>Pending Word Suggestions</h2>
+        <div class="search-container">
+          <input type="text" id="pending-search" class="search-input" placeholder="Search words...">
+        </div>
+      </div>
+      
+      <div class="word-list-container">
+        <table class="word-table">
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Language</th>
+              <th>Votes</th>
+              <th>Date Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pending-words-list">
+            <tr class="loading-row">
+              <td colspan="5">Loading pending words...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Approved Words Tab -->
+    <div id="approved-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>Approved Word Suggestions</h2>
+        <div class="search-container">
+          <input type="text" id="approved-search" class="search-input" placeholder="Search words...">
+        </div>
+      </div>
+      
+      <div class="word-list-container">
+        <table class="word-table">
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Language</th>
+              <th>Approved By</th>
+              <th>Date Approved</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="approved-words-list">
+            <tr class="loading-row">
+              <td colspan="5">Loading approved words...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rejected Words Tab -->
+    <div id="rejected-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>Rejected Word Suggestions</h2>
+        <div class="search-container">
+          <input type="text" id="rejected-search" class="search-input" placeholder="Search words...">
+        </div>
+      </div>
+      
+      <div class="word-list-container">
+        <table class="word-table">
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Language</th>
+              <th>Rejected By</th>
+              <th>Date Rejected</th>
+              <th>Reason</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rejected-words-list">
+            <tr class="loading-row">
+              <td colspan="6">Loading rejected words...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Custom Dictionary Tab -->
+    <div id="custom-tab" class="tab-content">
+      <div class="tab-header">
+        <h2>Custom Dictionary Words</h2>
+        <div class="search-container">
+          <input type="text" id="custom-search" class="search-input" placeholder="Search words...">
+        </div>
+      </div>
+      
+      <div class="add-word-container">
+        <input type="text" id="new-word-input" placeholder="New word">
+        <select id="new-word-category">
+          <option value="general">General</option>
+          <option value="technical">Technical</option>
+          <option value="medical">Medical</option>
+          <option value="legal">Legal</option>
+          <option value="name">Name</option>
+          <option value="location">Location</option>
+          <option value="slang">Slang</option>
+          <option value="dialect">Dialect</option>
+        </select>
+        <input type="text" id="new-word-notes" placeholder="Notes">
+        <button id="add-word-btn" class="btn btn-primary">Add Word</button>
+      </div>
+      
+      <div class="word-list-container">
+        <table class="word-table">
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>Language</th>
+              <th>Category</th>
+              <th>Added By</th>
+              <th>Date Added</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="custom-words-list">
+            <tr class="loading-row">
+              <td colspan="7">Loading custom words...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Statistics Tab -->
+    <div id="stats-tab" class="tab-content">
+      <h2>Dictionary Statistics</h2>
+      
+      <div class="stats-container">
+        <div class="stats-card">
+          <h3>Word Counts</h3>
+          <div id="stats-word-counts">Loading...</div>
+        </div>
+        
+        <div class="stats-card">
+          <h3>Language Distribution</h3>
+          <div id="stats-language-dist">Loading...</div>
+        </div>
+        
+        <div class="stats-card">
+          <h3>User Activity</h3>
+          <div id="stats-user-activity">Loading...</div>
+        </div>
+        
+        <div class="stats-card">
+          <h3>System Status</h3>
+          <div id="stats-system-status">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Word Details Modal -->
+  <div id="word-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 id="modal-title">Word Details</h2>
+      <div class="modal-body">
+        <div id="word-details-container">
+          <!-- Word details will be inserted here -->
+        </div>
+        <div id="word-action-container" class="action-buttons">
+          <button id="modal-approve-btn" class="btn btn-success">Approve</button>
+          <button id="modal-reject-btn" class="btn btn-danger">Reject</button>
+          <button id="modal-delete-btn" class="btn btn-danger">Delete</button>
+          <button id="modal-restore-btn" class="btn btn-secondary">Restore</button>
+          <button id="modal-update-btn" class="btn btn-primary">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="admin-script.js"></script>
+</body>
+</html>

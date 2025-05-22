@@ -27,9 +27,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="no" className="scroll-smooth">
-      <body className={`${inter.variable} ${montserrat.variable} ${spaceGrotesk.variable} font-sans bg-white`}>
+      <body className={`${inter.variable} ${montserrat.variable} ${spaceGrotesk.variable} font-sans bg-white overflow-x-hidden w-full max-w-[100vw]`}>
         <LoadingProvider>
-          {children}
+          <div className="overflow-x-hidden w-full max-w-[100vw]">
+            {children}
+          </div>
         </LoadingProvider>
       </body>
     </html>

@@ -1,0 +1,181 @@
+services:
+  # INFRASTRUCTURE SERVICES
+  
+  # Redis - shared instance for services
+  redis:
+    image: redis:7-alpine
+    container_name: readability-redis
+    ports:
+      - "6379:6379" 
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - readability-network
+      
+      
+  # RabbitMQ for messaging across services
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: readability-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  # APPLICATION SERVICES
+  
+  # Gateway Service
+  readability-gateway:
+    build: 
+      context: ./ReadabilityGateway
+    container_name: readability-gateway
+    ports:
+      - "5010:5010"  # HTTP endpoint
+    environment:
+      - PORT=5010
+      - WS_PORT=5010
+      - HOST=0.0.0.0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - PUBSUB_REDIS_HOST=redis
+      - PUBSUB_REDIS_PORT=6379
+      - PUBSUB_REDIS_DB=0
+      - CORS_ORIGINS=*
+      - WS_PATH=/ws/realtime
+      - ENABLE_WEBSOCKETS=true
+    volumes:
+      - ./utils:/app/utils
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - readability-network
+      
+  # SpellCheck Service
+  spellchecker:
+    build:
+      context: ./SpellcheckService
+      dockerfile: Dockerfile
+    container_name: spellcheck-service
+    ports:
+      - "5011:5011"
+    environment:
+      - PORT=5011
+      - HOST=0.0.0.0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+      - PUBSUB_REDIS_HOST=redis
+      - PUBSUB_REDIS_PORT=6379
+      - PUBSUB_REDIS_DB=0
+      - NODE_ENV=production
+    volumes:
+      - ./SpellcheckService/src/public:/app/src/public
+    depends_on:
+      - redis
+      - spellcheck-dictionary-loader
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  # Lix Service
+  lix-service:
+    build:
+      context: ./LixService
+      dockerfile: Dockerfile
+    container_name: lix-service
+    ports:
+      - "8012:8012"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=2
+      - REDIS_PASSWORD=
+      - REDIS_CACHE_TTL=3600
+      - PUBSUB_REDIS_HOST=redis
+      - PUBSUB_REDIS_PORT=6379
+      - PUBSUB_REDIS_DB=0
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_QUEUE_NAME=lix_persistent_queue
+      - RABBITMQ_EXCHANGE=text_analysis_exchange
+      - RABBITMQ_ROUTING_KEY=text_analysis
+    depends_on:
+      - redis
+      - rabbitmq
+    volumes:
+      - ./LixService/logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - readability-network
+      
+  # NLP Service
+  nlp-service:
+    build:
+      context: ./NLPService
+      dockerfile: Dockerfile
+    container_name: nlp-service
+    ports:
+      - "5014:5014"  
+    environment:
+      - MODEL_API_PORT=5014
+      - PYTHONPATH=/app
+      - TRANSFORMERS_CACHE=/app/models/cache
+    volumes:
+      - ./NLPService/models:/app/models
+      - ./NLPService/public:/app/public
+      - model-cache:/app/models/cache
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+
+  # DATA LOADER SERVICES
+      
+  # Spellcheck Dictionary Loader
+  spellcheck-dictionary-loader:
+    build:
+      context: ./SpellcheckService
+      dockerfile: Dockerfile.load-dictionary
+    container_name: spellcheck-dictionary-loader
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+    depends_on:
+      - redis
+    volumes:
+      - ./SpellcheckService/data/DICT:/app/data/DICT:ro
+    restart: on-failure
+    networks:
+      - readability-network
+
+networks:
+  readability-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  grammar-redis-data:
+  rabbitmq-data:
+  model-cache:

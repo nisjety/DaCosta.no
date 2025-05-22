@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  lix-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lix-service
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=
+      - REDIS_CACHE_TTL=3600
+      - ENABLE_METRICS=true
+      # RabbitMQ configuration
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_EXCHANGE=readability.persistent
+      - RABBITMQ_ROUTING_KEY=lix.analysis
+      - RABBITMQ_QUEUE_NAME=lix_analysis_queue
+    depends_on:
+      - redis
+      - rabbitmq
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: readability-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: readability-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.45.0
+    container_name: readability-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    container_name: readability-rabbitmq-exporter
+    ports:
+      - "9419:9419"
+    environment:
+      - RABBIT_URL=http://rabbitmq:15672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - readability-network
+
+networks:
+  readability-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  rabbitmq-data:

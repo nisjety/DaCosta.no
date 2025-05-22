@@ -1,0 +1,68 @@
+flowchart TD
+    %% External Entities
+    USER([User Browser])
+    SMS([SMS Recipient])
+    WHOIS([WHOIS Servers])
+    REG([Domain Registrars])
+    
+    %% Processes
+    subgraph DOMAIN_MONITOR["Domain Monitor System"]
+        MONITOR{{Domain Monitoring}}
+        CHECK{{Domain Status Check}}
+        NOTIFY{{Notification Handling}}
+        API_PROC{{API Processing}}
+        WS_PROC{{WebSocket Updates}}
+        UI{{Dashboard UI}}
+    end
+    
+    %% Data Stores
+    MONGO[(MongoDB)]
+    REDIS[(Redis Cache)]
+    JSON[(JSON Files)]
+    
+    %% Data Flows
+    
+    %% User Interactions
+    USER -->|Access Dashboard| UI
+    USER -->|Add/Remove Domains| API_PROC
+    USER -->|View Domain Status| API_PROC
+    USER -->|Control Monitoring| API_PROC
+    API_PROC -->|Domain Data| USER
+    WS_PROC -->|Real-time Updates| USER
+    NOTIFY -->|SMS Alerts| SMS
+    
+    %% Domain Checking
+    MONITOR -->|Schedule Checks| CHECK
+    CHECK -->|Query Domain Status| WHOIS
+    WHOIS -->|Registration Data| CHECK
+    CHECK -->|Check URL| REG
+    REG -->|Website Status| CHECK
+    
+    %% Data Storage
+    CHECK -->|Store Results| MONGO
+    CHECK -->|Cache Results| REDIS
+    MONGO -->|Load Domains| MONITOR
+    MONGO -->|Domain History| API_PROC
+    REDIS -->|Cached Status| API_PROC
+    JSON -->|Fallback Storage| MONITOR
+    
+    %% Notifications
+    CHECK -->|Domain Available| NOTIFY
+    MONGO -->|Previous Status| CHECK
+    
+    %% Real-time Updates
+    CHECK -->|Status Changed| WS_PROC
+    NOTIFY -->|Alert Sent| WS_PROC
+    API_PROC -->|Configuration Change| WS_PROC
+    
+    %% UI Data
+    MONGO -->|Domain List| UI
+    REDIS -->|Status Cache| UI
+    
+    classDef process fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+    classDef entity fill:#f3f4f6,stroke:#6b7280,stroke-width:2px
+    classDef store fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    
+    class MONITOR,CHECK,NOTIFY,API_PROC,WS_PROC,UI process
+    class USER,SMS,WHOIS,REG entity
+    class MONGO,REDIS,JSON store

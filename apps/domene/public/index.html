@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Monitor API</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <div class="gradient-bg py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight">
+                <span class="block">Domain Monitor</span>
+                <span class="block text-2xl font-medium mt-2">API Service</span>
+            </h1>
+            <p class="mt-6 text-xl text-indigo-100 max-w-2xl">
+                Dette er API-tjenesten for Domain Monitor. Bruk nettMonitor frontenden for å administrere dine domener.
+            </p>
+            <div class="mt-8">
+                <a href="/nettMonitor" class="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 transition-all duration-300">
+                    Gå til nettMonitor
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="divide-y divide-gray-200">
+            <div class="pb-8">
+                <h2 class="text-2xl font-bold text-gray-900">API Endepunkter</h2>
+                <p class="mt-4 text-gray-500">
+                    Følgende API-endepunkter er tilgjengelige:
+                </p>
+                <ul class="mt-4 space-y-2">
+                    <li class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <code class="text-sm font-mono text-purple-600">GET /api/domains</code>
+                        <p class="mt-1 text-gray-500">Hent alle domener</p>
+                    </li>
+                    <li class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <code class="text-sm font-mono text-purple-600">POST /api/domains</code>
+                        <p class="mt-1 text-gray-500">Legg til nytt domene</p>
+                    </li>
+                    <li class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <code class="text-sm font-mono text-purple-600">GET /api/domains/:name</code>
+                        <p class="mt-1 text-gray-500">Hent et spesifikt domene</p>
+                    </li>
+                    <li class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <code class="text-sm font-mono text-purple-600">DELETE /api/domains/:name</code>
+                        <p class="mt-1 text-gray-500">Slett et domene</p>
+                    </li>
+                    <li class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <code class="text-sm font-mono text-purple-600">POST /api/domains/:name/check</code>
+                        <p class="mt-1 text-gray-500">Manuell sjekk av et domene</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="py-8">
+                <h2 class="text-2xl font-bold text-gray-900">WebSocket API</h2>
+                <p class="mt-4 text-gray-500">
+                    WebSocket-API er tilgjengelig på port 3001. Hendelser sendes i sanntid for domeneendringer.
+                </p>
+            </div>
+        </div>
+
+        <footer class="mt-12">
+            <div class="border-t border-gray-200 pt-8">
+                <p class="text-center text-gray-400 text-sm">
+                    &copy; 2025 DaCosta.no - Domain Monitor Service
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

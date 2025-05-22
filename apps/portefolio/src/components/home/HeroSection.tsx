@@ -357,7 +357,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div id="projects" className="h-screen flex items-center justify-center bg-white text-[#222222] relative">
+      <div id="projects" className="h-screen flex items-center justify-center bg-white text-[#222222]">
         <motion.h2
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -367,7 +367,7 @@ export default function HeroSection() {
             damping: 20,
             delay: 0.2,
           }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-5xl md:text-6xl font-bold text-center w-full"
+          className="text-5xl md:text-6xl font-bold text-center"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
           Mine prosjekter

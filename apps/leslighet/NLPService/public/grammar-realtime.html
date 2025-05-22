@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NLP Service - Real-time Grammar Checking</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      resize: vertical;
+    }
+    .output {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      height: 300px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .status.connected {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .status.disconnected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .highlight {
+      background-color: #ffff99;
+      text-decoration: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: red;
+    }
+    .correction-card {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e2f0fb;
+      border-radius: 4px;
+    }
+    .correction-item {
+      margin: 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+    .correction-original {
+      color: #dc3545;
+      text-decoration: line-through;
+    }
+    .correction-fixed {
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-time Grammar Checking</h1>
+
+  <div class="status disconnected" id="connectionStatus">Disconnected</div>
+
+  <div class="container">
+    <div>
+      <h2>Input Text</h2>
+      <p>Try typing text with Norwegian grammar errors:</p>
+      <textarea id="inputText" placeholder="Type here with some intentional grammar errors..."></textarea>
+    </div>
+
+    <div>
+      <h2>Corrected Text</h2>
+      <div class="output" id="outputText"></div>
+    </div>
+  </div>
+
+  <div class="correction-card" id="correctionDetails">
+    <h3>Correction Details</h3>
+    <div id="correctionList"></div>
+  </div>
+
+  <script>
+    // Connection variables
+    let socket;
+    let connected = false;
+    let sessionId = 'user_' + Math.random().toString(36).substring(2, 15);
+    let debounceTimer;
+    const TYPING_DEBOUNCE = 500; // ms
+
+    // DOM elements
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const correctionList = document.getElementById('correctionList');
+
+    // Connect to WebSocket server
+    function connectWebSocket() {
+      // Get current host, but use port 5014 for model API
+      // In production, update this to use the appropriate host/port
+      const host = window.location.hostname;
+      const wsUrl = `ws://${host}:5014/ws/grammar`;
+      
+      socket = new WebSocket(wsUrl);
+      
+      socket.onopen = function() {
+        connected = true;
+        connectionStatus.textContent = 'Connected';
+        connectionStatus.className = 'status connected';
+        console.log('WebSocket connected');
+      };
+      
+      socket.onclose = function() {
+        connected = false;
+        connectionStatus.textContent = 'Disconnected - reconnecting in 3s...';
+        connectionStatus.className = 'status disconnected';
+        console.log('WebSocket disconnected');
+        // Try to reconnect after 3 seconds
+        setTimeout(connectWebSocket, 3000);
+      };
+      
+      socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        connectionStatus.textContent = 'Error connecting';
+        connectionStatus.className = 'status disconnected';
+      };
+      
+      socket.onmessage = function(event) {
+        handleCorrection(JSON.parse(event.data));
+      };
+    }
+    
+    // Handle incoming correction data
+    function handleCorrection(data) {
+      // Display the corrected text
+      outputText.innerHTML = data.corrected;
+      
+      // Update the correction details
+      correctionList.innerHTML = '';
+      
+      // If there are specific corrections, show them
+      if (data.corrections && data.corrections.length > 0) {
+        data.corrections.forEach(correction => {
+          const correctionItem = document.createElement('div');
+          correctionItem.className = 'correction-item';
+          correctionItem.innerHTML = `
+            <span class="correction-original">${correction.original}</span> →
+            <span class="correction-fixed">${correction.corrected}</span>
+          `;
+          correctionList.appendChild(correctionItem);
+        });
+      } else if (data.changes > 0) {
+        correctionList.innerHTML = `<div class="correction-item">
+          ${data.changes} changes were made to improve the text.
+        </div>`;
+      } else {
+        correctionList.innerHTML = '<div class="correction-item">No corrections needed.</div>';
+      }
+    }
+    
+    // Send text for grammar checking with debounce
+    function sendText() {
+      if (!connected || !socket) return;
+      
+      const text = inputText.value.trim();
+      
+      // Don't send empty text
+      if (!text) {
+        outputText.textContent = '';
+        correctionList.innerHTML = '';
+        return;
+      }
+      
+      // If it's too short, wait for more input
+      if (text.length < 3) return;
+      
+      const data = {
+        text: text,
+        sessionId: sessionId
+      };
+      
+      socket.send(JSON.stringify(data));
+    }
+    
+    // Set up event listeners
+    inputText.addEventListener('input', function() {
+      // Clear any pending debounce
+      clearTimeout(debounceTimer);
+      
+      // Set new debounce timer
+      debounceTimer = setTimeout(sendText, TYPING_DEBOUNCE);
+    });
+    
+    // Initialize connection when page loads
+    window.addEventListener('load', connectWebSocket);
+  </script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 880 720">
+  <defs>
+    <style>
+      .container {
+        fill: #f0f5ff;
+        stroke: #2563eb;
+        stroke-width: 2;
+        rx: 10;
+        ry: 10;
+      }
+      .api-container {
+        fill: #ecfdf5;
+        stroke: #059669;
+        stroke-width: 2;
+        rx: 8;
+        ry: 8;
+      }
+      .component {
+        fill: #ffffff;
+        stroke: #6b7280;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .db {
+        fill: #fffbeb;
+        stroke: #d97706;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .external {
+        fill: #f5f3ff;
+        stroke: #7c3aed;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .title {
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        fill: #1e40af;
+      }
+      .subtitle {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        fill: #047857;
+      }
+      .label {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        fill: #374151;
+      }
+      .arrow {
+        fill: none;
+        stroke: #6b7280;
+        stroke-width: 1.5;
+        marker-end: url(#arrowhead);
+      }
+      .event-arrow {
+        fill: none;
+        stroke: #7c3aed;
+        stroke-width: 1.5;
+        stroke-dasharray: 5, 5;
+        marker-end: url(#arrowhead-purple);
+      }
+      .docker-label {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        fill: #4b5563;
+        font-style: italic;
+      }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" 
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrowhead-purple" viewBox="0 0 10 10" refX="9" refY="5" 
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+  
+  <!-- Main Docker Container -->
+  <rect x="10" y="10" width="860" height="700" class="container" />
+  <text x="30" y="40" class="title">Domain Monitor System (Docker Environment)</text>
+  
+  <!-- API Container -->
+  <rect x="30" y="60" width="490" height="560" class="api-container" />
+  <text x="50" y="90" class="subtitle">Domain Monitor Service Container</text>
+  
+  <!-- Core Services -->
+  <rect x="50" y="110" width="200" height="160" class="component" />
+  <text x="80" y="130" class="label">Core Services</text>
+  <text x="60" y="155" class="label">- DomainService</text>
+  <text x="60" y="175" class="label">- MonitorService</text>
+  <text x="60" y="195" class="label">- SchedulerService</text>
+  <text x="60" y="215" class="label">- NotificationService</text>
+  <text x="60" y="235" class="label">- RegistrarService</text>
+  <text x="60" y="255" class="label">- EventBusService</text>
+  
+  <!-- API & WebSocket -->
+  <rect x="50" y="290" width="200" height="100" class="component" />
+  <text x="80" y="310" class="label">Communication Layer</text>
+  <text x="60" y="335" class="label">- ApiService (REST) :3000</text>
+  <text x="60" y="355" class="label">- WebSocketService :3001</text>
+  <text x="60" y="375" class="label">- Static File Server</text>
+  
+  <!-- Providers -->
+  <rect x="50" y="410" width="200" height="100" class="component" />
+  <text x="80" y="430" class="label">Service Providers</text>
+  <text x="60" y="455" class="label">- AxiosStatusProvider</text>
+  <text x="60" y="475" class="label">- DefaultWhoisProvider</text>
+  <text x="60" y="495" class="label">- TwilioProvider</text>
+  
+  <!-- Repositories -->
+  <rect x="290" y="110" width="210" height="80" class="component" />
+  <text x="330" y="130" class="label">Domain Repository</text>
+  <text x="300" y="155" class="label">- JSONFileDomainRepository</text>
+  <text x="300" y="175" class="label">- MongoDomainRepository</text>
+  
+  <!-- Caching -->
+  <rect x="290" y="210" width="210" height="60" class="component" />
+  <text x="330" y="230" class="label">Cache Provider</text>
+  <text x="300" y="250" class="label">- RedisCacheProvider</text>
+  
+  <!-- Dashboard UI -->
+  <rect x="290" y="290" width="210" height="80" class="component" />
+  <text x="330" y="310" class="label">Dashboard UI</text>
+  <text x="300" y="335" class="label">- Real-time Domain Status</text>
+  <text x="300" y="355" class="label">- Admin Controls</text>
+  
+  <!-- Domain Model -->
+  <rect x="290" y="390" width="210" height="80" class="component" />
+  <text x="330" y="410" class="label">Domain Model</text>
+  <text x="300" y="435" class="label">- Domain</text>
+  <text x="300" y="455" class="label">- DomainStatus</text>
+  
+  <!-- External Systems -->
+  <rect x="290" y="490" width="210" height="80" class="external" />
+  <text x="330" y="510" class="label">External Services</text>
+  <text x="300" y="535" class="label">- Domain Registrars</text>
+  <text x="300" y="555" class="label">- WHOIS Servers</text>
+  
+  <!-- Database Container -->
+  <rect x="550" y="60" width="290" height="150" class="container" />
+  <text x="570" y="90" class="subtitle">MongoDB Container</text>
+  <rect x="570" y="110" width="250" height="80" class="db" />
+  <text x="610" y="130" class="label">MongoDB Database</text>
+  <text x="580" y="155" class="label">- domains collection</text>
+  <text x="580" y="175" class="label">- notifications collection</text>
+  
+  <!-- Redis Container -->
+  <rect x="550" y="240" width="290" height="130" class="container" />
+  <text x="570" y="270" class="subtitle">Redis Container</text>
+  <rect x="570" y="290" width="250" height="60" class="db" />
+  <text x="610" y="310" class="label">Redis Cache</text>
+  <text x="580" y="330" class="label">- Domain status cache</text>
+  
+  <!-- Caddy Container -->
+  <rect x="550" y="400" width="290" height="160" class="container" />
+  <text x="570" y="430" class="subtitle">Caddy Container</text>
+  <rect x="570" y="450" width="250" height="90" class="component" />
+  <text x="610" y="470" class="label">Caddy Web Server</text>
+  <text x="580" y="495" class="label">- Reverse Proxy</text>
+  <text x="580" y="515" class="label">- HTTPS/TLS</text>
+  <text x="580" y="535" class="label">- WebSocket Support</text>
+  
+  <!-- Users Section -->
+  <rect x="30" y="640" width="820" height="50" rx="5" ry="5" fill="#f9fafb" stroke="#d1d5db" />
+  <text x="360" y="670" class="label" text-anchor="middle">User Browsers / SMS Recipients</text>
+  
+  <!-- Connection Arrows -->
+  <!-- Core to Repositories -->
+  <path d="M 250 170 L 285 170" class="arrow" />
+  
+  <!-- Core to Caching -->
+  <path d="M 250 190 L 270 190 L 270 240 L 285 240" class="arrow" />
+  
+  <!-- Core to API -->
+  <path d="M 150 275 L 150 285" class="arrow" />
+  
+  <!-- API to Dashboard -->
+  <path d="M 250 330 L 285 330" class="arrow" />
+  
+  <!-- Dashboard to User -->
+  <path d="M 395 375 L 395 640" class="arrow" />
+  
+  <!-- Core to Providers -->
+  <path d="M 150 275 L 150 405" class="arrow" />
+  
+  <!-- Providers to External -->
+  <path d="M 250 460 L 270 460 L 270 530 L 285 530" class="arrow" />
+  
+  <!-- Repository to MongoDB -->
+  <path d="M 395 190 L 395 210" class="arrow" />
+  <path d="M 500 150 L 565 150" class="arrow" />
+  
+  <!-- Cache Provider to Redis -->
+  <path d="M 500 240 L 565 240" class="arrow" />
+  <path d="M 500 240 L 530 240 L 530 320 L 565 320" class="arrow" />
+  
+  <!-- API to Caddy -->
+  <path d="M 500 330 L 530 330 L 530 500 L 565 500" class="arrow" />
+  
+  <!-- Caddy to User -->
+  <path d="M 695 545 L 695 640" class="arrow" />
+  
+  <!-- Event Flow Arrows -->
+  <path d="M 200 245 C 250 245, 270 205, 320 205" class="event-arrow" />
+  <path d="M 200 245 C 250 245, 270 285, 320 285" class="event-arrow" />
+  <path d="M 200 245 C 250 245, 270 400, 320 400" class="event-arrow" />
+  
+  <!-- Docker Labels -->
+  <text x="790" y="30" class="docker-label">docker-compose.yml</text>
+  <text x="480" y="80" class="docker-label">domain-monitor</text>
+  <text x="820" y="80" class="docker-label">mongo</text>
+  <text x="820" y="260" class="docker-label">redis</text>
+  <text x="820" y="420" class="docker-label">caddy</text>
+  <text x="30" y="630" class="docker-label">external network</text>
+  
+  <!-- Port Labels -->
+  <text x="230" y="620" class="docker-label">:3000 API/Web</text>
+  <text x="350" y="620" class="docker-label">:3001 WebSocket</text>
+  <text x="695" y="620" class="docker-label">:80/:443 HTTP/HTTPS</text>
+</svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 880 720">
+  <defs>
+    <style>
+      .container {
+        fill: #f0f5ff;
+        stroke: #2563eb;
+        stroke-width: 2;
+        rx: 10;
+        ry: 10;
+      }
+      .api-container {
+        fill: #ecfdf5;
+        stroke: #059669;
+        stroke-width: 2;
+        rx: 8;
+        ry: 8;
+      }
+      .component {
+        fill: #ffffff;
+        stroke: #6b7280;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .db {
+        fill: #fffbeb;
+        stroke: #d97706;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .external {
+        fill: #f5f3ff;
+        stroke: #7c3aed;
+        stroke-width: 1.5;
+        rx: 6;
+        ry: 6;
+      }
+      .title {
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        fill: #1e40af;
+      }
+      .subtitle {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        fill: #047857;
+      }
+      .label {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        fill: #374151;
+      }
+      .arrow {
+        fill: none;
+        stroke: #6b7280;
+        stroke-width: 1.5;
+        marker-end: url(#arrowhead);
+      }
+      .event-arrow {
+        fill: none;
+        stroke: #7c3aed;
+        stroke-width: 1.5;
+        stroke-dasharray: 5, 5;
+        marker-end: url(#arrowhead-purple);
+      }
+      .docker-label {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        fill: #4b5563;
+        font-style: italic;
+      }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" 
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrowhead-purple" viewBox="0 0 10 10" refX="9" refY="5" 
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+  
+  <!-- Main Docker Container -->
+  <rect x="10" y="10" width="860" height="700" class="container" />
+  <text x="30" y="40" class="title">Domain Monitor System (Docker Environment)</text>
+  
+  <!-- API Container -->
+  <rect x="30" y="60" width="490" height="560" class="api-container" />
+  <text x="50" y="90" class="subtitle">Domain Monitor Service Container</text>
+  
+  <!-- Core Services -->
+  <rect x="50" y="110" width="200" height="160" class="component" />
+  <text x="80" y="130" class="label">Core Services</text>
+  <text x="60" y="155" class="label">- DomainService</text>
+  <text x="60" y="175" class="label">- MonitorService</text>
+  <text x="60" y="195" class="label">- SchedulerService</text>
+  <text x="60" y="215" class="label">- NotificationService</text>
+  <text x="60" y="235" class="label">- RegistrarService</text>
+  <text x="60" y="255" class="label">- EventBusService</text>
+  
+  <!-- API & WebSocket -->
+  <rect x="50" y="290" width="200" height="100" class="component" />
+  <text x="80" y="310" class="label">Communication Layer</text>
+  <text x="60" y="335" class="label">- ApiService (REST) :3000</text>
+  <text x="60" y="355" class="label">- WebSocketService :3001</text>
+  <text x="60" y="375" class="label">- Static File Server</text>
+  
+  <!-- Providers -->
+  <rect x="50" y="410" width="200" height="100" class="component" />
+  <text x="80" y="430" class="label">Service Providers</text>
+  <text x="60" y="455" class="label">- AxiosStatusProvider</text>
+  <text x="60" y="475" class="label">- DefaultWhoisProvider</text>
+  <text x="60" y="495" class="label">- TwilioProvider</text>
+  
+  <!-- Repositories -->
+  <rect x="290" y="110" width="210" height="80" class="component" />
+  <text x="330" y="130" class="label">Domain Repository</text>
+  <text x="300" y="155" class="label">- JSONFileDomainRepository</text>
+  <text x="300" y="175" class="label">- MongoDomainRepository</text>
+  
+  <!-- Caching -->
+  <rect x="290" y="210" width="210" height="60" class="component" />
+  <text x="330" y="230" class="label">Cache Provider</text>
+  <text x="300" y="250" class="label">- RedisCacheProvider</text>
+  
+  <!-- Dashboard UI -->
+  <rect x="290" y="290" width="210" height="80" class="component" />
+  <text x="330" y="310" class="label">Dashboard UI</text>
+  <text x="300" y="335" class="label">- Real-time Domain Status</text>
+  <text x="300" y="355" class="label">- Admin Controls</text>
+  
+  <!-- Domain Model -->
+  <rect x="290" y="390" width="210" height="80" class="component" />
+  <text x="330" y="410" class="label">Domain Model</text>
+  <text x="300" y="435" class="label">- Domain</text>
+  <text x="300" y="455" class="label">- DomainStatus</text>
+  
+  <!-- External Systems -->
+  <rect x="290" y="490" width="210" height="80" class="external" />
+  <text x="330" y="510" class="label">External Services</text>
+  <text x="300" y="535" class="label">- Domain Registrars</text>
+  <text x="300" y="555" class="label">- WHOIS Servers</text>
+  
+  <!-- Database Container -->
+  <rect x="550" y="60" width="290" height="150" class="container" />
+  <text x="570" y="90" class="subtitle">MongoDB Container</text>
+  <rect x="570" y="110" width="250" height="80" class="db" />
+  <text x="610" y="130" class="label">MongoDB Database</text>
+  <text x="580" y="155" class="label">- domains collection</text>
+  <text x="580" y="175" class="label">- notifications collection</text>
+  
+  <!-- Redis Container -->
+  <rect x="550" y="240" width="290" height="130" class="container" />
+  <text x="570" y="270" class="subtitle">Redis Container</text>
+  <rect x="570" y="290" width="250" height="60" class="db" />
+  <text x="610" y="310" class="label">Redis Cache</text>
+  <text x="580" y="330" class="label">- Domain status cache</text>
+  
+  <!-- Caddy Container -->
+  <rect x="550" y="400" width="290" height="160" class="container" />
+  <text x="570" y="430" class="subtitle">Caddy Container</text>
+  <rect x="570" y="450" width="250" height="90" class="component" />
+  <text x="610" y="470" class="label">Caddy Web Server</text>
+  <text x="580" y="495" class="label">- Reverse Proxy</text>
+  <text x="580" y="515" class="label">- HTTPS/TLS</text>
+  <text x="580" y="535" class="label">- WebSocket Support</text>
+  
+  <!-- Users Section -->
+  <rect x="30" y="640" width="820" height="50" rx="5" ry="5" fill="#f9fafb" stroke="#d1d5db" />
+  <text x="360" y="670" class="label" text-anchor="middle">User Browsers / SMS Recipients</text>
+  
+  <!-- Connection Arrows -->
+  <!-- Core to Repositories -->
+  <path d="M 250 170 L 285 170" class="arrow" />
+  
+  <!-- Core to Caching -->
+  <path d="M 250 190 L 270 190 L 270 240 L 285 240" class="arrow" />
+  
+  <!-- Core to API -->
+  <path d="M 150 275 L 150 285" class="arrow" />
+  
+  <!-- API to Dashboard -->
+  <path d="M 250 330 L 285 330" class="arrow" />
+  
+  <!-- Dashboard to User -->
+  <path d="M 395 375 L 395 640" class="arrow" />
+  
+  <!-- Core to Providers -->
+  <path d="M 150 275 L 150 405" class="arrow" />
+  
+  <!-- Providers to External -->
+  <path d="M 250 460 L 270 460 L 270 530 L 285 530" class="arrow" />
+  
+  <!-- Repository to MongoDB -->
+  <path d="M 395 190 L 395 210" class="arrow" />
+  <path d="M 500 150 L 565 150" class="arrow" />
+  
+  <!-- Cache Provider to Redis -->
+  <path d="M 500 240 L 565 240" class="arrow" />
+  <path d="M 500 240 L 530 240 L 530 320 L 565 320" class="arrow" />
+  
+  <!-- API to Caddy -->
+  <path d="M 500 330 L 530 330 L 530 500 L 565 500" class="arrow" />
+  
+  <!-- Caddy to User -->
+  <path d="M 695 545 L 695 640" class="arrow" />
+  
+  <!-- Event Flow Arrows -->
+  <path d="M 200 245 C 250 245, 270 205, 320 205" class="event-arrow" />
+  <path d="M 200 245 C 250 245, 270 285, 320 285" class="event-arrow" />
+  <path d="M 200 245 C 250 245, 270 400, 320 400" class="event-arrow" />
+  
+  <!-- Docker Labels -->
+  <text x="790" y="30" class="docker-label">docker-compose.yml</text>
+  <text x="480" y="80" class="docker-label">domain-monitor</text>
+  <text x="820" y="80" class="docker-label">mongo</text>
+  <text x="820" y="260" class="docker-label">redis</text>
+  <text x="820" y="420" class="docker-label">caddy</text>
+  <text x="30" y="630" class="docker-label">external network</text>
+  
+  <!-- Port Labels -->
+  <text x="230" y="620" class="docker-label">:3000 API/Web</text>
+  <text x="350" y="620" class="docker-label">:3001 WebSocket</text>
+  <text x="695" y="620" class="docker-label">:80/:443 HTTP/HTTPS</text>
+</svg>

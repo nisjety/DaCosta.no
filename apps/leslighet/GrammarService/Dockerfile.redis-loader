@@ -1,0 +1,18 @@
+FROM node:20-slim
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the source files and data
+COPY src ./src
+COPY scripts ./scripts
+COPY data ./data
+
+# Debug: List contents and run loader
+CMD ls -R ./data && node scripts/loadDataToRedis.js

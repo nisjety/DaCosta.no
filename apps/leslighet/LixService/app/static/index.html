@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIX Lesbarhetsanalyse - Demo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    .realtime-link {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      color: #1565c0;
+      font-weight: bold;
+    }
+    .realtime-link:hover {
+      background-color: #bbdefb;
+    }
+  </style>
+</head>
+<body>
+  <h1>LIX Lesbarhetsanalyse - Demo</h1>
+  <a href="/static/realtime.html" class="realtime-link">Prøv vår sanntids analyse med WebSocket og SSE!</a>
+  <p>Skriv eller lim inn tekst for å analysere lesbarhetsgrad:</p>
+  
+  <div>
+    <button class="example-btn" id="exampleEasy">Enkel tekst</button>
+    <button class="example-btn" id="exampleMedium">Middels tekst</button>
+    <button class="example-btn" id="exampleHard">Vanskelig tekst</button>
+  </div>
+  
+  <textarea id="textInput" placeholder="Skriv eller lim inn tekst her..."></textarea>
+  
+  <div class="results" id="results">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">LIX</div>
+        <div class="metric-value" id="lixScore">-</div>
+        <div class="metric-category" id="lixCategory">-</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">RIX</div>
+        <div class="metric-value" id="rixScore">-</div>
+        <div class="metric-category" id="rixCategory">-</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Antall ord</div>
+        <div class="metric-value" id="wordCount">-</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Gj.snitt ord per setning</div>
+        <div class="metric-value" id="avgSentenceLength">-</div>
+      </div>
+    </div>
+    
+    <div class="interpretation" id="interpretation">
+      <p>Skriv inn tekst ovenfor for å se en vurdering av lesbarheten.</p>
+    </div>
+    
+    <div class="sentence-list" id="sentenceList">
+      <!-- Sentences will be added here -->
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+//src/grammar/services/localNlpService.js
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
+/**
+ * Service for NLP-powered text analysis using local models.
+ * Uses Python child processes to run inference with local models (e.g., NorBERT for grammar/sentiment and a smaller summarization model).
+ */
+class LocalNorwegianNLPService {
+    constructor() {
+        this.pythonPath = process.env.PYTHON_PATH || 'python3';
+        this.modelsDir = process.env.MODELS_DIR || path.join(__dirname, '../../models');
+        
+        // Configure timeouts (adjust as needed)
+        this.DEFAULT_TIMEOUT = parseInt(process.env.DEFAULT_MODEL_TIMEOUT || '120000'); // 2 minutes default
+        // We remove Viking-specific timeouts since we no longer use Viking 7B.
+        
+        // Ensure models directory exists
+        if (!fs.existsSync(this.modelsDir)) {
+            fs.mkdirSync(this.modelsDir, { recursive: true });
+        }
+        
+        // Check if required scripts exist
+        this.scriptsReady = this.checkScripts();
+        if (!this.scriptsReady) {
+            console.warn('Python AI scripts not found. Please ensure they are set up.');
+        }
+        
+        // Detect available CPU cores for performance hints
+        this.cpuCount = os.cpus().length;
+        console.log(`Detected ${this.cpuCount} CPU cores for model inference`);
+    }
+    
+    /**
+     * Check if required Python scripts exist.
+     * For local models, we expect:
+     * - sentiment_analysis.py
+     * - grammar_check.py
+     * - summarization.py
+     * @returns {boolean} Whether the scripts exist.
+     */
+    checkScripts() {
+        const requiredScripts = [
+            'sentiment_analysis.py',
+            'grammar_check.py',
+            'summarization.py'
+        ];
+        return requiredScripts.every(script =>
+            fs.existsSync(path.join(this.modelsDir, script))
+        );
+    }
+    
+    /**
+     * Run a Python script with text input.
+     * @param {string} scriptName - The Python script to run.
+     * @param {string} text - The input text.
+     * @returns {Promise<object>} - A promise resolving with the JSON result.
+     */
+    runPythonScript(scriptName, text) {
+        return new Promise((resolve, reject) => {
+            const scriptPath = path.join(this.modelsDir, scriptName);
+            const timeout = this.DEFAULT_TIMEOUT;
+            console.log(`Executing Python script: ${scriptPath} with timeout ${timeout/1000}s`);
+            
+            // If text is long, write to a temporary file.
+            let inputFile = null;
+            let commandArgs = [scriptPath];
+            if (text.length > 1000) {
+                const timestamp = Date.now();
+                inputFile = path.join(os.tmpdir(), `input_${timestamp}_${scriptName}.txt`);
+                fs.writeFileSync(inputFile, text);
+                commandArgs.push(`@${inputFile}`);
+            } else {
+                commandArgs.push(text);
+            }
+            
+            const envVars = {
+                ...process.env,
+                THREADS_COUNT: Math.max(1, this.cpuCount - 1).toString(),
+                TOKENIZERS_PARALLELISM: 'true'
+            };
+            
+            const childProcess = spawn(this.pythonPath, commandArgs, { env: envVars });
+            let stdout = '';
+            let stderr = '';
+            childProcess.stdout.on('data', (data) => {
+                stdout += data.toString();
+            });
+            childProcess.stderr.on('data', (data) => {
+                stderr += data.toString();
+            });
+            childProcess.on('close', (code) => {
+                if (inputFile && fs.existsSync(inputFile)) {
+                    try {
+                        fs.unlinkSync(inputFile);
+                    } catch (e) {
+                        console.warn(`Failed to delete temporary file ${inputFile}:`, e);
+                    }
+                }
+                if (code !== 0) {
+                    reject(new Error(`Script ${scriptName} failed with code ${code}: ${stderr}`));
+                    return;
+                }
+                try {
+                    const result = JSON.parse(stdout.trim());
+                    resolve(result);
+                } catch (error) {
+                    reject(new Error(`Failed to parse output from ${scriptName}: ${error.message}`));
+                }
+            });
+            
+            const timeoutId = setTimeout(() => {
+                try {
+                    childProcess.kill();
+                } catch (e) {
+                    console.warn('Error killing process:', e);
+                }
+                reject(new Error(`Script ${scriptName} timed out after ${timeout/1000} seconds`));
+            }, timeout);
+            
+            childProcess.on('close', () => {
+                clearTimeout(timeoutId);
+            });
+            
+            childProcess.on('error', (error) => {
+                reject(error);
+            });
+        });
+    }
+    
+    /**
+     * Create an extractive summary as a fallback.
+     * @param {string} text - Input text.
+     * @returns {object} - Summary object.
+     */
+    createExtractiveSummary(text) {
+        console.log('Creating extractive summary as fallback');
+        const sentences = text.replace(/!/g, '.').replace(/\?/g, '.').split('.').map(s => s.trim()).filter(s => s);
+        const selected = [];
+        if (sentences.length > 0) {
+            selected.push(sentences[0]);
+            if (sentences.length > 2) {
+                selected.push(sentences[Math.floor(sentences.length / 2)]);
+            }
+            if (sentences.length > 1) {
+                selected.push(sentences[sentences.length - 1]);
+            }
+        }
+        const summary = selected.join('. ') + '.';
+        return {
+            summary,
+            originalLength: text.length,
+            summaryLength: summary.length,
+            compressionRatio: Math.round((summary.length / Math.max(1, text.length)) * 100) / 100,
+            analysisType: 'fallback-extractive',
+            model: 'basic-fallback'
+        };
+    }
+    
+    async analyzeSentiment(text) {
+        try {
+            if (!this.scriptsReady) throw new Error('Python scripts not ready.');
+            return await this.runPythonScript('sentiment_analysis.py', text);
+        } catch (error) {
+            console.error("Local Sentiment Analysis Error:", error.message);
+            return { error: "Feil under analyse", sentiment: "ukjent", score: 0, analysisType: "failed" };
+        }
+    }
+    
+    async checkGrammar(text) {
+        try {
+            if (!this.scriptsReady) throw new Error('Python scripts not ready.');
+            return await this.runPythonScript('grammar_check.py', text);
+        } catch (error) {
+            console.error("Local Grammar Check Error:", error.message);
+            return [{ 
+                type: 'error',
+                issue: "Feil under grammatikkontroll", 
+                errorDetails: error.message,
+                severity: 'high',
+                source: 'local-model'
+            }];
+        }
+    }
+    
+    async summarizeText(text) {
+        try {
+            if (!this.scriptsReady) throw new Error('Python scripts not ready.');
+            // Use summarization.py instead of a Viking-specific script.
+            return await this.runPythonScript('summarization.py', text);
+        } catch (error) {
+            console.error("Summarization Error:", error.message);
+            console.log("Falling back to extractive summarization");
+            return this.createExtractiveSummary(text);
+        }
+    }
+}
+
+// Create a singleton instance.
+const localNorwegianNLPService = new LocalNorwegianNLPService();
+
+module.exports = {
+    localNorwegianNLPService,
+    analyzeSentimentWithLocalModel: (text) => localNorwegianNLPService.analyzeSentiment(text),
+    checkGrammarWithLocalModel: (text) => localNorwegianNLPService.checkGrammar(text),
+    summarizeTextWithLocalModel: (text) => localNorwegianNLPService.summarizeText(text)
+};

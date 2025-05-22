@@ -1,0 +1,36 @@
+# Use Node.js 18 as the base image
+FROM node:18-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Install required system dependencies for node-gyp
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files first to install dependencies
+COPY package.json package-lock.json* ./
+
+# Install only production dependencies
+RUN npm install --production
+
+# Copy the dictionary loading script and all necessary files
+COPY scripts/ ./scripts/
+COPY src/ ./src/
+
+# Set NODE_ENV
+ENV NODE_ENV=production
+
+# Wait time between commands to ensure Redis is updated
+ENV WAIT_TIME=5
+
+# Run the script to load dictionaries into Redis, then run the encoding test
+CMD node scripts/load_dictionary_to_redis.js && \
+    echo "Waiting ${WAIT_TIME} seconds before running encoding test..." && \
+    sleep ${WAIT_TIME} && \
+    echo "Running encoding test..." && \
+    node scripts/encoding-test.js

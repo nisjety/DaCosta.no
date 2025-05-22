@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Norwegian Grammar Service - API Tester</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      background-color: #fff;
+    }
+    .card-header {
+      border-bottom: 1px solid #e1e4e8;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .status-success {
+      background-color: #dcffe4;
+      color: #0a5d1e;
+    }
+    .status-error {
+      background-color: #ffebe9;
+      color: #cf222e;
+    }
+    .status-pending {
+      background-color: #fff8c5;
+      color: #9a6700;
+    }
+    .text-area-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
+    .text-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      overflow: hidden;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 10px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      background-color: transparent;
+      position: relative;
+      z-index: 1;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #1a7f37;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #116329;
+    }
+    button:disabled {
+      background-color: #94d3a2;
+      cursor: not-allowed;
+    }
+    .error-btn {
+      background-color: #cf222e;
+    }
+    .error-btn:hover {
+      background-color: #a40e26;
+    }
+    .log-container {
+      font-family: monospace;
+      background-color: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 15px;
+      height: 200px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      margin-bottom: 5px;
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 5px;
+    }
+    .log-entry-time {
+      color: #57606a;
+      font-size: 12px;
+    }
+    .log-entry-received {
+      color: #1a7f37;
+    }
+    .log-entry-sent {
+      color: #0969da;
+    }
+    .log-entry-error {
+      color: #cf222e;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .debug-info {
+      font-size: 12px;
+      color: #57606a;
+      margin-top: 10px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #24292f;
+    }
+    .highlight-error {
+      background-color: rgba(255, 129, 130, 0.3);
+      text-decoration: wavy underline #cf222e;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+    .grammar-issues-container {
+      margin-top: 20px;
+    }
+    .grammar-issue {
+      background-color: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-left: 4px solid #cf222e;
+      border-radius: 4px;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .grammar-issue:hover {
+      background-color: #f0f1f3;
+    }
+    .grammar-issue-type {
+      font-weight: bold;
+      color: #24292f;
+    }
+    .grammar-issue-message {
+      margin: 5px 0;
+    }
+    .grammar-issue-suggestion {
+      color: #1a7f37;
+      font-weight: 600;
+    }
+    .grammar-issue-context {
+      color: #57606a;
+      font-style: italic;
+      font-size: 14px;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 10px 0;
+      background-color: #f6f8fa;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+    }
+    .fix-all-btn {
+      background-color: #0969da;
+    }
+    .fix-all-btn:hover {
+      background-color: #0550ae;
+    }
+    .selected-issue {
+      background-color: #f0f7ff;
+      border-color: #0969da;
+      border-left-color: #0969da;
+    }
+    .loading {
+      position: relative;
+    }
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .performance-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f6f8fa;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #57606a;
+    }
+    .loading-indicator {
+      display: none;
+      text-align: center;
+    }
+    .loading .loading-indicator {
+      display: block;
+    }
+    .apply-suggestion-btn {
+      margin-left: 10px;
+      background-color: #0969da;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Norwegian Grammar Service - Grammar Checker</h1>
+  
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>Norwegian Grammar Check</h2>
+        <div id="status-indicator" class="status status-pending">Ready</div>
+      </div>
+      
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <div class="option-group">
+            <label for="language-select">Language:</label>
+            <select id="language-select">
+              <option value="nb-NO" selected>Norwegian Bokmål (nb-NO)</option>
+              <option value="nn-NO">Norwegian Nynorsk (nn-NO)</option>
+              <option value="en-US">English (en-US)</option>
+            </select>
+          </div>
+          
+          <div class="option-group">
+            <label for="include-tokens">
+              <input type="checkbox" id="include-tokens"> Include Tokens
+            </label>
+          </div>
+          
+          <div class="option-group">
+            <label for="include-details">
+              <input type="checkbox" id="include-details"> Include Details
+            </label>
+          </div>
+        </div>
+        
+        <div class="toolbar-group">
+          <button id="check-grammar-btn">Check Grammar</button>
+          <button id="fix-all-btn" class="fix-all-btn" disabled>Apply All Suggestions</button>
+        </div>
+      </div>
+      
+      <div class="text-area-container">
+        <div id="text-overlay" class="text-overlay"></div>
+        <textarea id="text-input" placeholder="Enter Norwegian text here to check grammar...">Jeg har skrivd en tekst med grammatik feil. Den røde bil er fin.</textarea>
+      </div>
+      
+      <div id="loading-indicator" class="loading-indicator">
+        <p>Analyzing text...</p>
+      </div>
+      
+      <div id="grammar-issues" class="grammar-issues-container"></div>
+      
+      <div id="performance-stats" class="performance-stats" style="display: none;">
+        <div>Issues found: <span id="issues-count">0</span></div>
+        <div>Processing time: <span id="processing-time">0</span> ms</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2>API Configuration</h2>
+      </div>
+      
+      <div class="options">
+        <div class="option-group">
+          <label for="api-url">API URL:</label>
+          <input type="text" id="api-url" value="http://localhost:3000/api/grammar/check" size="40">
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2>Communication Log</h2>
+        <button id="clear-log-btn">Clear Log</button>
+      </div>
+      <div id="log-container" class="log-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const checkGrammarBtn = document.getElementById('check-grammar-btn');
+    const clearLogBtn = document.getElementById('clear-log-btn');
+    const fixAllBtn = document.getElementById('fix-all-btn');
+    const apiUrlInput = document.getElementById('api-url');
+    const textInput = document.getElementById('text-input');
+    const textOverlay = document.getElementById('text-overlay');
+    const logContainer = document.getElementById('log-container');
+    const languageSelect = document.getElementById('language-select');
+    const includeTokens = document.getElementById('include-tokens');
+    const includeDetails = document.getElementById('include-details');
+    const grammarIssues = document.getElementById('grammar-issues');
+    const statusIndicator = document.getElementById('status-indicator');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const performanceStats = document.getElementById('performance-stats');
+    const issuesCount = document.getElementById('issues-count');
+    const processingTime = document.getElementById('processing-time');
+    
+    // State
+    let currentIssues = [];
+    let selectedIssueIndex = -1;
+    
+    // Generate a requestId
+    const generateRequestId = () => {
+      return 'req_' + Math.random().toString(36).substring(2, 15);
+    };
+    
+    // Log entry to the UI
+    const log = (message, type = 'info') => {
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-entry-${type}`;
+      
+      const time = document.createElement('span');
+      time.className = 'log-entry-time';
+      time.textContent = `[${new Date().toLocaleTimeString()}] `;
+      
+      entry.appendChild(time);
+      entry.appendChild(document.createTextNode(message));
+      
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    };
+    
+    // Update the text overlay with highlighted errors
+    const updateTextOverlay = () => {
+      if (!currentIssues || !currentIssues.length) {
+        textOverlay.innerHTML = '';
+        return;
+      }
+      
+      const text = textInput.value;
+      let html = '';
+      let lastIndex = 0;
+      
+      // Sort issues by start position
+      const sortedIssues = [...currentIssues].sort((a, b) => a.position.start - b.position.start);
+      
+      for (let i = 0; i < sortedIssues.length; i++) {
+        const issue = sortedIssues[i];
+        const { start, end } = issue.position;
+        
+        // Add text before the highlighted part
+        html += escapeHtml(text.substring(lastIndex, start));
+        
+        // Add the highlighted part
+        const highlightedClass = i === selectedIssueIndex ? 'highlight-error selected-issue' : 'highlight-error';
+        html += `<span class="${highlightedClass}" data-issue-index="${i}">${escapeHtml(text.substring(start, end))}</span>`;
+        
+        lastIndex = end;
+      }
+      
+      // Add remaining text
+      html += escapeHtml(text.substring(lastIndex));
+      
+      textOverlay.innerHTML = html;
+      
+      // Add event listeners to highlighted errors
+      const highlightedErrors = textOverlay.querySelectorAll('.highlight-error');
+      highlightedErrors.forEach((element) => {
+        element.addEventListener('click', () => {
+          const issueIndex = parseInt(element.getAttribute('data-issue-index'), 10);
+          selectIssue(issueIndex);
+        });
+      });
+    };
+    
+    // Escape HTML special characters
+    const escapeHtml = (text) => {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    };
+    
+    // Format issue message with suggestions
+    const formatIssue = (issue) => {
+      return {
+        ...issue,
+        formattedMessage: `${issue.message}${issue.suggestion ? ` (Suggestion: "${issue.suggestion}")` : ''}`,
+      };
+    };
+    
+    // Display grammar issues in the UI
+    const displayGrammarIssues = (issues) => {
+      grammarIssues.innerHTML = '';
+      currentIssues = issues.map(formatIssue);
+      
+      if (!issues || !issues.length) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'No grammar issues found!';
+        emptyMessage.style.color = '#1a7f37';
+        emptyMessage.style.fontWeight = 'bold';
+        grammarIssues.appendChild(emptyMessage);
+        fixAllBtn.disabled = true;
+        return;
+      }
+      
+      fixAllBtn.disabled = false;
+      
+      // For each issue, create a UI element
+      issues.forEach((issue, index) => {
+        const issueElement = document.createElement('div');
+        issueElement.className = 'grammar-issue';
+        issueElement.setAttribute('data-issue-index', index);
+        
+        const typeElement = document.createElement('div');
+        typeElement.className = 'grammar-issue-type';
+        typeElement.textContent = issue.type.charAt(0).toUpperCase() + issue.type.slice(1);
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = 'grammar-issue-message';
+        messageElement.textContent = issue.message;
+        
+        const suggestionContainer = document.createElement('div');
+        suggestionContainer.style.display = 'flex';
+        suggestionContainer.style.alignItems = 'center';
+        
+        if (issue.suggestion) {
+          const suggestionElement = document.createElement('div');
+          suggestionElement.className = 'grammar-issue-suggestion';
+          suggestionElement.textContent = `Suggestion: "${issue.suggestion}"`;
+          suggestionContainer.appendChild(suggestionElement);
+          
+          const applyBtn = document.createElement('button');
+          applyBtn.className = 'apply-suggestion-btn';
+          applyBtn.textContent = 'Apply';
+          applyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applySuggestion(index);
+          });
+          suggestionContainer.appendChild(applyBtn);
+        }
+        
+        const contextElement = document.createElement('div');
+        contextElement.className = 'grammar-issue-context';
+        contextElement.textContent = issue.context || '';
+        
+        issueElement.appendChild(typeElement);
+        issueElement.appendChild(messageElement);
+        issueElement.appendChild(suggestionContainer);
+        
+        if (issue.context) {
+          issueElement.appendChild(contextElement);
+        }
+        
+        issueElement.addEventListener('click', () => {
+          selectIssue(index);
+        });
+        
+        grammarIssues.appendChild(issueElement);
+      });
+    };
+    
+    // Select an issue and highlight it in both the text and issues list
+    const selectIssue = (index) => {
+      if (index === selectedIssueIndex) return;
+      
+      selectedIssueIndex = index;
+      
+      // Update issue list UI
+      const issueElements = grammarIssues.querySelectorAll('.grammar-issue');
+      issueElements.forEach((element, i) => {
+        if (i === index) {
+          element.classList.add('selected-issue');
+          element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          element.classList.remove('selected-issue');
+        }
+      });
+      
+      // Update text overlay
+      updateTextOverlay();
+      
+      // Position cursor in textarea
+      const issue = currentIssues[index];
+      if (issue) {
+        textInput.focus();
+        textInput.setSelectionRange(issue.position.start, issue.position.end);
+      }
+    };
+    
+    // Apply a single suggestion to the text
+    const applySuggestion = (index) => {
+      const issue = currentIssues[index];
+      if (!issue || !issue.suggestion) return;
+      
+      const text = textInput.value;
+      const newText = text.substring(0, issue.position.start) + 
+                      issue.suggestion + 
+                      text.substring(issue.position.end);
+      
+      textInput.value = newText;
+      
+      // Re-check grammar after applying suggestion
+      checkGrammar();
+    };
+    
+    // Apply all suggestions to the text
+    const applyAllSuggestions = () => {
+      if (!currentIssues || !currentIssues.length) return;
+      
+      let text = textInput.value;
+      
+      // Sort issues in reverse order (from end to start) to avoid position shifts
+      const sortedIssues = [...currentIssues]
+        .filter(issue => issue.suggestion)
+        .sort((a, b) => b.position.start - a.position.start);
+      
+      for (const issue of sortedIssues) {
+        text = text.substring(0, issue.position.start) + 
+               issue.suggestion + 
+               text.substring(issue.position.end);
+      }
+      
+      textInput.value = text;
+      
+      // Re-check grammar after applying all suggestions
+      checkGrammar();
+    };
+    
+    // Check grammar using HTTP API
+    const checkGrammar = async () => {
+      const text = textInput.value;
+      if (!text.trim()) {
+        log('Please enter some text to check', 'error');
+        return;
+      }
+      
+      const language = languageSelect.value;
+      const url = apiUrlInput.value;
+      
+      // Update UI state
+      statusIndicator.textContent = 'Checking...';
+      statusIndicator.className = 'status status-pending';
+      grammarIssues.innerHTML = '';
+      textOverlay.innerHTML = '';
+      currentIssues = [];
+      fixAllBtn.disabled = true;
+      checkGrammarBtn.disabled = true;
+      performanceStats.style.display = 'none';
+      textInput.parentNode.classList.add('loading');
+      loadingIndicator.style.display = 'block';
+      
+      log(`Sending grammar check to ${url}...`, 'sent');
+      
+      try {
+        const startTime = performance.now();
+        
+        log('Request payload: ' + JSON.stringify({
+          text,
+          language,
+          includeTokens: includeTokens.checked,
+          includeDetails: includeDetails.checked
+        }, null, 2), 'sent');
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            text,
+            language,
+            includeTokens: includeTokens.checked,
+            includeDetails: includeDetails.checked
+          }),
+          mode: 'cors'
+        });
+        
+        const endTime = performance.now();
+        const clientProcessingTime = Math.round(endTime - startTime);
+        
+        if (!response.ok) {
+          statusIndicator.textContent = 'Error';
+          statusIndicator.className = 'status status-error';
+          log(`HTTP error: ${response.status} ${response.statusText}`, 'error');
+          const errorText = await response.text();
+          log(`Error details: ${errorText}`, 'error');
+          return;
+        }
+        
+        const data = await response.json();
+        log(`HTTP response received:\n${JSON.stringify(data, null, 2)}`, 'received');
+        
+        // Update UI with results
+        if (data.status === 'success' && data.result) {
+          const issues = data.result.issues || [];
+          displayGrammarIssues(issues);
+          updateTextOverlay();
+          
+          // Update performance stats
+          issuesCount.textContent = issues.length;
+          processingTime.textContent = data.metadata?.processingTime || clientProcessingTime;
+          performanceStats.style.display = 'flex';
+          
+          if (issues.length === 0) {
+            statusIndicator.textContent = 'No issues found';
+            statusIndicator.className = 'status status-success';
+          } else {
+            statusIndicator.textContent = `${issues.length} issue${issues.length === 1 ? '' : 's'} found`;
+            statusIndicator.className = 'status status-error';
+          }
+        } else {
+          statusIndicator.textContent = 'Error';
+          statusIndicator.className = 'status status-error';
+          log('Invalid response format from server', 'error');
+        }
+      } catch (error) {
+        statusIndicator.textContent = 'Error';
+        statusIndicator.className = 'status status-error';
+        log(`HTTP error: ${error.message}`, 'error');
+        log('Check the console for more details. The server might not be running or not correctly configured for CORS.', 'error');
+        console.error('Fetch error details:', error);
+      } finally {
+        // Reset UI state
+        checkGrammarBtn.disabled = false;
+        textInput.parentNode.classList.remove('loading');
+        loadingIndicator.style.display = 'none';
+      }
+    };
+    
+    // Sync text overlay with textarea
+    const syncTextOverlay = () => {
+      // Ensure overlay matches the textarea's dimensions
+      textOverlay.style.width = textInput.offsetWidth + 'px';
+      textOverlay.style.height = textInput.offsetHeight + 'px';
+      
+      // Sync scroll position
+      textOverlay.scrollTop = textInput.scrollTop;
+      textOverlay.scrollLeft = textInput.scrollLeft;
+    };
+    
+    // Attach event listeners
+    checkGrammarBtn.addEventListener('click', checkGrammar);
+    fixAllBtn.addEventListener('click', applyAllSuggestions);
+    clearLogBtn.addEventListener('click', () => {
+      logContainer.innerHTML = '';
+    });
+    
+    // Sync text overlay when textarea changes
+    textInput.addEventListener('input', () => {
+      // Clear issues when text changes
+      if (currentIssues.length > 0) {
+        currentIssues = [];
+        grammarIssues.innerHTML = '';
+        textOverlay.innerHTML = '';
+        fixAllBtn.disabled = true;
+        statusIndicator.textContent = 'Ready';
+        statusIndicator.className = 'status status-pending';
+        performanceStats.style.display = 'none';
+      }
+    });
+    
+    textInput.addEventListener('scroll', syncTextOverlay);
+    textInput.addEventListener('input', syncTextOverlay);
+    
+    // Resize observer to handle textarea resizing
+    const resizeObserver = new ResizeObserver(() => {
+      syncTextOverlay();
+    });
+    
+    resizeObserver.observe(textInput);
+    
+    // Initialize
+    syncTextOverlay();
+    
+    // Log welcome message
+    log('Norwegian Grammar Service initialized. Ready to check grammar.');
+    log('Service URL: ' + apiUrlInput.value);
+  </script>
+</body>
+</html>

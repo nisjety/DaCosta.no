@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  domain-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: domain-monitor:latest
+    container_name: domain-monitor
+    restart: unless-stopped
+    ports:
+      - "3001:3001"  # API port
+      - "3002:3002"  # WebSocket port
+    volumes:
+      - ./data:/usr/src/app/data
+      - ./public:/usr/src/app/public
+      - ./.env:/usr/src/app/.env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - domain-monitor-network
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:6
+    container_name: domain-monitor-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports:
+      - "27017:27017"
+    networks:
+      - domain-monitor-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: domain-monitor-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - domain-monitor-network
+
+  # Caddy web server for HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: domain-monitor-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - domain-monitor-network
+    depends_on:
+      - domain-monitor
+
+volumes:
+  mongo-data:
+  redis-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  domain-monitor-network:
+    driver: bridge

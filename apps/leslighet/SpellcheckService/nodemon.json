@@ -1,0 +1,17 @@
+{
+    "watch": [
+      "server.js",
+      "src/**/*.js",
+      ".env"
+    ],
+    "ignore": [
+      "node_modules/",
+      "data/",
+      "tests/",
+      "*.test.js"
+    ],
+    "env": {
+      "NODE_ENV": "development"
+    },
+    "ext": "js,json"
+  }

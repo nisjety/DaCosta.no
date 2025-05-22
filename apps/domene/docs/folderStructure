@@ -1,0 +1,58 @@
+domain-monitor/
+├── src/
+│   ├── config/                  # Configuration files
+│   │   ├── config.js            # Main configuration
+│   │   ├── eventTypes.js        # Event type definitions
+│   │   └── registrars.js        # Registrar URL generators
+│   ├── models/                  # Domain entities
+│   │   ├── Domain.js            # Domain model
+│   │   └── DomainStatus.js      # Domain status model
+│   ├── providers/               # External service providers
+│   │   ├── cache/               # Cache providers
+│   │   │   └── RedisCacheProvider.js
+│   │   ├── notification/        # Notification providers
+│   │   │   ├── NotificationProvider.js     # Interface
+│   │   │   └── TwilioProvider.js           # SMS implementation
+│   │   ├── status/              # Website status providers
+│   │   │   ├── StatusProvider.js           # Interface
+│   │   │   └── AxiosStatusProvider.js      # HTTP implementation
+│   │   └── whois/               # WHOIS providers
+│   │       ├── WhoisProvider.js            # Interface
+│   │       └── DefaultWhoisProvider.js     # Implementation
+│   ├── repositories/            # Data storage
+│   │   ├── DomainRepository.js             # Interface
+│   │   ├── JSONFileDomainRepository.js     # JSON file implementation
+│   │   └── MongoDomainRepository.js        # MongoDB implementation
+│   ├── services/                # Core business logic
+│   │   ├── ApiService.js                   # REST API
+│   │   ├── DomainService.js                # Domain management
+│   │   ├── EventBusService.js              # Event handling
+│   │   ├── MonitorService.js               # Domain monitoring
+│   │   ├── NotificationService.js          # Notification management
+│   │   ├── RegistrarService.js             # Registrar links
+│   │   ├── SchedulerService.js             # Scheduled monitoring
+│   │   └── WebSocketService.js             # Real-time updates
+│   ├── utils/                   # Utility functions
+│   │   ├── logger.js            # Logging utility
+│   │   └── validators.js        # Input validation
+│   ├── server.js                # Static file server
+│   └── index.js                 # Application entry point
+├── public/                      # Frontend files
+│   └── index.html               # Dashboard UI
+├── data/                        # Data storage (JSON files)
+├── docker/                      # Docker configuration
+│   ├── mongo/                   # MongoDB specific configuration
+│   │   └── init/                # MongoDB initialization scripts
+│   │       └── mongo-init.js    # Init script
+│   └── redis/                   # Redis specific configuration
+├── .env.example                 # Example environment variables
+├── .gitignore                   # Git ignore file
+├── Caddyfile                    # Caddy reverse proxy config
+├── docker-compose.yml           # Production Docker Compose
+├── docker-compose.dev.yml       # Development Docker Compose
+├── Dockerfile                   # Production Dockerfile
+├── Dockerfile.dev               # Development Dockerfile
+├── docker-setup-guide.md        # Docker setup documentation
+├── package.json                 # NPM package configuration
+├── package-lock.json            # NPM dependencies lock file
+└── README.md                    # Project documentation

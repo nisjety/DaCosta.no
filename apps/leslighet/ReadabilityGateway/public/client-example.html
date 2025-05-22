@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readability Service Client Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+    .panel {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px;
+      font-family: inherit;
+      resize: vertical;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 300px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .tab {
+      border: 1px solid #ccc;
+      border-bottom: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 4px 4px 0 0;
+      background-color: #f1f1f1;
+      margin-right: 2px;
+    }
+    .tab.active {
+      background-color: white;
+      border-bottom: 1px solid white;
+      position: relative;
+      bottom: -1px;
+    }
+    .tab-content {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 0 4px 4px 4px;
+    }
+    .hidden {
+      display: none;
+    }
+    .message {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+    }
+    .message.error {
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+    .message.success {
+      background-color: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+    .message.info {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+    .status {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .status-indicator.connected {
+      background-color: #4CAF50;
+    }
+    .status-indicator.disconnected {
+      background-color: #f44336;
+    }
+    .status-indicator.connecting {
+      background-color: #ff9800;
+    }
+  </style>
+</head>
+<body>
+  <h1>Readability Service Demo</h1>
+  <p>This page demonstrates using the WebSocket Gateway to access all readability services in real time.</p>
+  
+  <div class="status">
+    <div>
+      <span class="status-indicator disconnected" id="connectionIndicator"></span>
+      <span id="connectionStatus">Disconnected</span>
+    </div>
+    <div>
+      <span>Client ID: </span>
+      <span id="clientId">Not connected</span>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="panel">
+      <h2>Input</h2>
+      <textarea id="textInput" placeholder="Enter text to analyze..."></textarea>
+      <div>
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-tab="spellcheck">Spellcheck</div>
+        <div class="tab" data-tab="lix">Readability</div>
+        <div class="tab" data-tab="grammar">Grammar</div>
+        <div class="tab" data-tab="ai">AI</div>
+        <div class="tab" data-tab="realtime">Unified Real-time</div>
+      </div>
+      <div class="tab-content" id="spellcheckTab">
+        <h3>Spellcheck Options</h3>
+        <div>
+          <label>
+            <input type="radio" name="language" value="norwegian" checked> Norwegian
+          </label>
+          <label>
+            <input type="radio" name="language" value="english"> English
+          </label>
+        </div>
+        <div id="norwegianDialects">
+          <label>
+            <input type="checkbox" name="dialect" value="nb" checked> Bokmål (nb)
+          </label>
+          <label>
+            <input type="checkbox" name="dialect" value="nn"> Nynorsk (nn)
+          </label>
+        </div>
+        <div id="englishDialects" style="display: none;">
+          <label>
+            <input type="checkbox" name="dialect" value="gb" checked> British (gb)
+          </label>
+          <label>
+            <input type="checkbox" name="dialect" value="us" checked> American (us)
+          </label>
+        </div>
+        <button id="spellcheckBtn" disabled>Check Spelling</button>
+      </div>
+      <div class="tab-content hidden" id="lixTab">
+        <h3>Readability Options</h3>
+        <div>
+          <label>
+            <input type="checkbox" name="lixOption" value="wordAnalysis" checked> Include word analysis
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="lixOption" value="sentenceAnalysis" checked> Include sentence analysis
+          </label>
+        </div>
+        <button id="lixBtn" disabled>Check Readability</button>
+      </div>
+      <div class="tab-content hidden" id="grammarTab">
+        <h3>Grammar Options</h3>
+        <div>
+          <label>
+            <input type="checkbox" name="grammarOption" value="style" checked> Style suggestions
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="grammarOption" value="punctuation" checked> Punctuation
+          </label>
+        </div>
+        <button id="grammarBtn" disabled>Check Grammar</button>
+      </div>
+      <div class="tab-content hidden" id="aiTab">
+        <h3>AI Suggestions</h3>
+        <div>
+          <label>
+            <input type="checkbox" name="aiOption" value="summary" checked> Generate summary
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="aiOption" value="improve" checked> Improvement suggestions
+          </label>
+        </div>
+        <button id="aiBtn" disabled>Get AI Suggestions</button>
+      </div>
+      <div class="tab-content hidden" id="realtimeTab">
+        <h3>Unified Real-time Analysis</h3>
+        <p>Experience real-time analysis with all services combined into one interface.</p>
+        <p>For the comprehensive unified readability analysis dashboard, <a href="realtime-demo.html" target="_blank">open the Real-time Demo</a>.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Results</h2>
+      <div id="messagesContainer"></div>
+      <pre id="results">Connect and analyze text to see results here...</pre>
+    </div>
+  </div>
+
+  <script>
+    // WebSocket connection
+    let ws = null;
+    let clientId = null;
+    
+    // DOM Elements
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const spellcheckBtn = document.getElementById('spellcheckBtn');
+    const lixBtn = document.getElementById('lixBtn');
+    const grammarBtn = document.getElementById('grammarBtn');
+    const aiBtn = document.getElementById('aiBtn');
+    const textInput = document.getElementById('textInput');
+    const results = document.getElementById('results');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const connectionIndicator = document.getElementById('connectionIndicator');
+    const clientIdElement = document.getElementById('clientId');
+    const messagesContainer = document.getElementById('messagesContainer');
+    
+    // Tab handling
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(content => content.classList.add('hidden'));
+        
+        tab.classList.add('active');
+        const tabId = tab.dataset.tab + 'Tab';
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        // If unified realtime tab is selected, redirect to the dedicated page
+        if (tab.dataset.tab === 'realtime') {
+          window.open('realtime-demo.html', '_blank');
+          
+          // Reset to previous tab since we're opening the real-time interface in a new tab
+          setTimeout(() => {
+            tab.classList.remove('active');
+            document.getElementById('spellcheckTab').classList.remove('hidden');
+            document.querySelector('.tab[data-tab="spellcheck"]').classList.add('active');
+            document.getElementById('realtimeTab').classList.add('hidden');
+          }, 100);
+        }
+      });
+    });
+    
+    // Language selection handling
+    const languageRadios = document.querySelectorAll('input[name="language"]');
+    languageRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'norwegian') {
+          document.getElementById('norwegianDialects').style.display = 'block';
+          document.getElementById('englishDialects').style.display = 'none';
+        } else {
+          document.getElementById('norwegianDialects').style.display = 'none';
+          document.getElementById('englishDialects').style.display = 'block';
+        }
+      });
+    });
+    
+    // Connect to WebSocket server
+    connectBtn.addEventListener('click', () => {
+      connect();
+    });
+    
+    // Disconnect from WebSocket server
+    disconnectBtn.addEventListener('click', () => {
+      disconnect();
+    });
+    
+    // Spellcheck button
+    spellcheckBtn.addEventListener('click', () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        showMessage('Please enter text to analyze', 'error');
+        return;
+      }
+      
+      // Get selected language
+      const language = document.querySelector('input[name="language"]:checked').value;
+      
+      // Get dialect settings
+      const dialectSettings = {};
+      if (language === 'norwegian') {
+        document.querySelectorAll('#norwegianDialects input[name="dialect"]:checked').forEach(checkbox => {
+          dialectSettings[checkbox.value] = true;
+        });
+      } else {
+        document.querySelectorAll('#englishDialects input[name="dialect"]:checked').forEach(checkbox => {
+          dialectSettings[checkbox.value] = true;
+        });
+      }
+      
+      // Send request
+      sendRequest('spellcheck', {
+        text,
+        language,
+        dialectSettings
+      });
+    });
+    
+    // Readability button
+    lixBtn.addEventListener('click', () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        showMessage('Please enter text to analyze', 'error');
+        return;
+      }
+      
+      // Get options
+      const options = {
+        include_word_analysis: document.querySelector('input[value="wordAnalysis"]').checked,
+        include_sentence_analysis: document.querySelector('input[value="sentenceAnalysis"]').checked
+      };
+      
+      // Send request
+      sendRequest('lix', {
+        text,
+        options
+      });
+    });
+    
+    // Grammar button
+    grammarBtn.addEventListener('click', () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        showMessage('Please enter text to analyze', 'error');
+        return;
+      }
+      
+      // Get options
+      const options = {
+        check_style: document.querySelector('input[value="style"]').checked,
+        check_punctuation: document.querySelector('input[value="punctuation"]').checked
+      };
+      
+      // Send request
+      sendRequest('grammar', {
+        text,
+        options
+      });
+    });
+    
+    // AI button
+    aiBtn.addEventListener('click', () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        showMessage('Please enter text to analyze', 'error');
+        return;
+      }
+      
+      // Get options
+      const options = {
+        generate_summary: document.querySelector('input[value="summary"]').checked,
+        improvement_suggestions: document.querySelector('input[value="improve"]').checked
+      };
+      
+      // Send request
+      sendRequest('ai', {
+        text,
+        options
+      });
+    });
+    
+    // Helper functions
+    function connect() {
+      // Get WebSocket URL from window location
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      updateConnectionStatus('connecting');
+      
+      try {
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = (event) => {
+          updateConnectionStatus('connected');
+          enableButtons(true);
+          showMessage('Connected to Readability Gateway', 'success');
+        };
+        
+        ws.onclose = (event) => {
+          updateConnectionStatus('disconnected');
+          enableButtons(false);
+          clientId = null;
+          clientIdElement.textContent = 'Not connected';
+          if (event.wasClean) {
+            showMessage(`Disconnected from server: ${event.reason}`, 'info');
+          } else {
+            showMessage('Connection closed unexpectedly', 'error');
+          }
+        };
+        
+        ws.onerror = (error) => {
+          updateConnectionStatus('disconnected');
+          showMessage('WebSocket error', 'error');
+          console.error('WebSocket error:', error);
+        };
+        
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Received message:', data);
+            
+            // Handle connection confirmation
+            if (data.type === 'connection' && data.status === 'connected') {
+              clientId = data.clientId;
+              clientIdElement.textContent = clientId;
+            }
+            
+            // Handle service responses
+            if (['spellcheck', 'lix', 'grammar', 'ai'].includes(data.type)) {
+              results.textContent = JSON.stringify(data.data, null, 2);
+            }
+            
+            // Handle errors
+            if (data.type === 'error') {
+              showMessage(data.message, 'error');
+            }
+            
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+            showMessage('Error parsing server response', 'error');
+          }
+        };
+      } catch (error) {
+        console.error('Error creating WebSocket:', error);
+        updateConnectionStatus('disconnected');
+        showMessage('Failed to connect to WebSocket server', 'error');
+      }
+    }
+    
+    function disconnect() {
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+    }
+    
+    function sendRequest(service, content) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        showMessage('Not connected to WebSocket server', 'error');
+        return;
+      }
+      
+      const message = {
+        action: 'request',
+        service,
+        content,
+        requestId: generateRequestId()
+      };
+      
+      ws.send(JSON.stringify(message));
+      showMessage(`Sent request to ${service} service`, 'info');
+      
+      // Subscribe to the service if not already
+      subscribe(service);
+    }
+    
+    function subscribe(service) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return;
+      }
+      
+      const message = {
+        action: 'subscribe',
+        service
+      };
+      
+      ws.send(JSON.stringify(message));
+    }
+    
+    function updateConnectionStatus(status) {
+      switch (status) {
+        case 'connected':
+          connectionStatus.textContent = 'Connected';
+          connectionIndicator.className = 'status-indicator connected';
+          connectBtn.disabled = true;
+          disconnectBtn.disabled = false;
+          break;
+        case 'disconnected':
+          connectionStatus.textContent = 'Disconnected';
+          connectionIndicator.className = 'status-indicator disconnected';
+          connectBtn.disabled = false;
+          disconnectBtn.disabled = true;
+          break;
+        case 'connecting':
+          connectionStatus.textContent = 'Connecting...';
+          connectionIndicator.className = 'status-indicator connecting';
+          connectBtn.disabled = true;
+          disconnectBtn.disabled = true;
+          break;
+      }
+    }
+    
+    function enableButtons(enabled) {
+      spellcheckBtn.disabled = !enabled;
+      lixBtn.disabled = !enabled;
+      grammarBtn.disabled = !enabled;
+      aiBtn.disabled = !enabled;
+    }
+    
+    function showMessage(text, type) {
+      const message = document.createElement('div');
+      message.className = `message ${type}`;
+      message.textContent = text;
+      
+      messagesContainer.insertBefore(message, messagesContainer.firstChild);
+      
+      // Remove old messages
+      if (messagesContainer.childElementCount > 5) {
+        messagesContainer.removeChild(messagesContainer.lastChild);
+      }
+      
+      // Auto-remove after delay
+      setTimeout(() => {
+        message.style.opacity = '0';
+        setTimeout(() => {
+          if (message.parentNode) {
+            message.parentNode.removeChild(message);
+          }
+        }, 500);
+      }, 5000);
+    }
+    
+    function generateRequestId() {
+      return Math.random().toString(36).substring(2, 15);
+    }
+  </script>
+</body>
+</html>

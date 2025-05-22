@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  nlp-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5014:5014"  # Expose the FastAPI model service port
+    volumes:
+      - ./models:/app/models
+      - model-cache:/app/models/cache
+    environment:
+      - MODEL_API_PORT=5014
+      - PYTHONPATH=/app
+      - TRANSFORMERS_CACHE=/app/models/cache
+    restart: unless-stopped
+
+volumes:
+  model-cache:
+    driver: local
+
+volumes:
+  redis-data:
+  rabbitmq-data:

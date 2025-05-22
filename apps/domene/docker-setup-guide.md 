@@ -1,0 +1,264 @@
+# Docker Setup Guide for Domain Monitor
+
+This guide explains how to use Docker to run the Domain Monitor service in both development and production environments.
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed on your machine
+- [Docker Compose](https://docs.docker.com/compose/install/) installed on your machine
+- Basic knowledge of Docker and containerization
+
+## Project Structure
+
+The Docker setup includes the following files:
+
+- `Dockerfile` - Production build for the Domain Monitor service
+- `Dockerfile.dev` - Development build with hot reloading
+- `docker-compose.yml` - Production stack with all services
+- `docker-compose.dev.yml` - Development stack with additional tools
+- `Caddyfile` - Caddy web server configuration for reverse proxy
+
+## Configuration
+
+1. **Create your environment file**:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit the `.env` file** to configure your settings:
+   - Ensure MongoDB and Redis connection settings match your Docker configuration
+   - Set your Twilio credentials if you want to enable SMS notifications(14KDBTSEDN3ZL967E9UD466R)
+   - Configure monitoring schedule and other settings
+
+## Development Environment
+
+The development environment includes:
+
+- Hot-reloading Node.js application with nodemon
+- MongoDB database
+- Mongo Express web interface
+- Redis cache
+- Redis Commander web interface
+
+### Starting Development Environment
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+This will start the following services:
+
+- Domain Monitor API: http://localhost:3000
+- WebSocket server: ws://localhost:3001
+- Mongo Express: http://localhost:8081
+- Redis Commander: http://localhost:8082
+
+### Development Workflow
+
+1. **View logs**:
+
+   ```bash
+   docker-compose -f docker-compose.dev.yml logs -f domain-monitor-dev
+   ```
+
+2. **Restart the service**:
+
+   ```bash
+   docker-compose -f docker-compose.dev.yml restart domain-monitor-dev
+   ```
+
+3. **Stop the development environment**:
+
+   ```bash
+   docker-compose -f docker-compose.dev.yml down
+   ```
+
+## Production Environment
+
+The production environment includes:
+
+- Optimized Node.js application
+- MongoDB database
+- Redis cache
+- Caddy web server (reverse proxy with automatic HTTPS)
+
+### Starting Production Environment
+
+```bash
+docker-compose up -d
+```
+
+This will start the following services:
+
+- Domain Monitor (API & WebSocket): Behind Caddy reverse proxy
+- MongoDB database
+- Redis cache
+- Caddy web server: http://localhost and https://localhost
+
+### Production Configuration
+
+#### Custom Domain
+
+To use a custom domain in production:
+
+1. Edit the `Caddyfile` and uncomment the domain section:
+
+   ```
+   example.com {
+       # Auto-HTTPS provided by Caddy
+       reverse_proxy /api/* domain-monitor:3000
+       reverse_proxy domain-monitor:3000
+       
+       @websockets {
+           header Connection *Upgrade*
+           header Upgrade websocket
+       }
+       
+       reverse_proxy @websockets domain-monitor:3001
+       
+       header {
+           Strict-Transport-Security "max-age=31536000; includeSubDomains"
+       }
+       
+       log {
+           output file /var/log/caddy/access.log
+       }
+   }
+   ```
+
+2. Replace `example.com` with your actual domain name
+
+3. Restart Caddy:
+
+   ```bash
+   docker-compose restart caddy
+   ```
+
+### Production Management
+
+1. **View logs**:
+
+   ```bash
+   docker-compose logs -f domain-monitor
+   ```
+
+2. **Update to latest version**:
+
+   ```bash
+   git pull
+   docker-compose down
+   docker-compose build
+   docker-compose up -d
+   ```
+
+3. **Stop the production environment**:
+
+   ```bash
+   docker-compose down
+   ```
+
+## Data Persistence
+
+All data is stored in Docker volumes:
+
+- `mongo-data`: MongoDB database files
+- `redis-data`: Redis cache data
+- `caddy-data`: Caddy TLS certificates and data
+- `caddy-config`: Caddy configuration
+
+These volumes persist even when containers are stopped or removed.
+
+## Customization
+
+### Using External MongoDB or Redis
+
+If you want to use external MongoDB or Redis instances:
+
+1. Edit your `.env` file to point to the external services:
+
+   ```
+   MONGO_CONNECTION_STRING=mongodb://username:password@your-mongodb-host:27017/domain_monitor
+   REDIS_HOST=your-redis-host
+   REDIS_PORT=6379
+   ```
+
+2. Remove the services from `docker-compose.yml`:
+
+   ```bash
+   # Edit docker-compose.yml to remove mongo and redis services
+   # Also remove the depends_on references
+   ```
+
+3. Restart the service:
+
+   ```bash
+   docker-compose down
+   docker-compose up -d
+   ```
+
+## Troubleshooting
+
+### Connection Issues
+
+If the Domain Monitor service can't connect to MongoDB or Redis:
+
+1. Check the logs:
+
+   ```bash
+   docker-compose logs domain-monitor
+   ```
+
+2. Ensure the service names in your `.env` file match the Docker service names:
+
+   ```
+   MONGO_CONNECTION_STRING=mongodb://admin:password@mongo:27017/domain_monitor?authSource=admin
+   REDIS_HOST=redis
+   ```
+
+3. Check if the services are running:
+
+   ```bash
+   docker-compose ps
+   ```
+
+### Persistence Issues
+
+If data is not persisting after restarts:
+
+1. Check if volumes are created:
+
+   ```bash
+   docker volume ls
+   ```
+
+2. Ensure volumes are properly mapped in `docker-compose.yml`
+
+### Performance Optimization
+
+For better performance in production:
+
+1. Allocate more resources to Docker:
+   - Increase CPU allocation
+   - Increase memory limits
+
+2. Consider using MongoDB Atlas for database:
+   - Update `MONGO_CONNECTION_STRING` in `.env`
+   - Remove MongoDB service from `docker-compose.yml`
+
+## Security Considerations
+
+For production deployments:
+
+1. Change default passwords in `.env`
+2. Use a custom domain with HTTPS
+3. Set up proper network security rules
+4. Consider using Docker Swarm or Kubernetes for larger deployments
+
+## Further Resources
+
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+- [Caddy Documentation](https://caddyserver.com/docs/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Redis Documentation](https://redis.io/documentation)

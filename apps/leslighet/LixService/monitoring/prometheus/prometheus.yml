@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # Add alertmanager configuration if needed
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'lix_service'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['app:8000']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka:9092'] 

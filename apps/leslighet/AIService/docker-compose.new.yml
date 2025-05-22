@@ -1,0 +1,20 @@
+services:
+  model-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.new
+    ports:
+      - "5014:5014"
+    volumes:
+      - ./models:/app
+    environment:
+      - MODEL_API_PORT=5014
+      - TRANSFORMERS_CACHE=/app/cache
+      - API_KEY=${API_KEY:-}  # Optional API key for security
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5014/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
