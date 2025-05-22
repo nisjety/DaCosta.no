@@ -6,10 +6,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_DOMAIN_API_URL=/api/domain-monitor
-      - NEXT_PUBLIC_DOMAIN_WS_URL=ws://localhost:3001 
-      - DOMENE_INTERNAL_API_URL=http://domene:3001
+      - NODE_ENV=${NODE_ENV:-production}
+      - NEXT_PUBLIC_DOMAIN_API_URL=${NEXT_PUBLIC_DOMAIN_API_URL:-/api/domain-monitor}
+      - NEXT_PUBLIC_DOMAIN_WS_URL=${NEXT_PUBLIC_DOMAIN_WS_URL:-ws://localhost:3001}
+      - DOMENE_INTERNAL_API_URL=${DOMENE_INTERNAL_API_URL:-http://domene:3001}
     depends_on:
       - domene
     networks:
@@ -20,15 +20,13 @@ services:
       context: ./apps/domene
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"  # Map API to 3001 on host to avoid conflict with portfolio
-      - "3002:3002"  # Map WebSocket port to 3002 on host
+      - "3001:3001"
     env_file:
       - ./apps/domene/.env
     environment:
-      # Override specific values from .env if needed
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://admin:password@mongo:27017/domain_monitor?authSource=admin
-      - REDIS_HOST=redis
+      - NODE_ENV=${NODE_ENV:-production}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:password@mongo:27017/domain_monitor?authSource=admin}
+      - REDIS_HOST=${REDIS_HOST:-redis}
     depends_on:
       - mongo
       - redis
